@@ -1,1 +1,1 @@
-# MAT_GaussJacobi
+# Gauss Jacobi Visualizer
