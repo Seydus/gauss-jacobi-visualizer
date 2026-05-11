@@ -5,10 +5,13 @@ library(ggplot2)
 # ---------- Helper Functions ----------
 
 # Parse a space- or comma-separated string into a numeric vector
-parse_vector <- function(text) {
+parse_vector <- function(text, field = "Input") {
   text <- gsub(",", " ", text)
-  vals <- suppressWarnings(as.numeric(strsplit(trimws(text), "\\s+")[[1]]))
-  vals[!is.na(vals)]
+  tokens <- strsplit(trimws(text), "\\s+")[[1]]
+  vals <- suppressWarnings(as.numeric(tokens))
+  if (any(is.na(vals)))
+    stop(paste(field, "must contain only numeric values separated by spaces or commas."))
+  vals
 }
 
 # Parse a multi-line string into an n x n numeric matrix
@@ -19,7 +22,7 @@ parse_matrix <- function(text, n) {
     stop(paste("Matrix A must have exactly", n, "rows. You provided", length(lines), "."))
   mat <- matrix(0, nrow = n, ncol = n)
   for (i in seq_len(n)) {
-    row <- parse_vector(lines[i])
+     row <- parse_vector(lines[i], paste("Row", i, "of A"))
     if (length(row) != n)
       stop(paste("Row", i, "of A must have exactly", n, "numeric values."))
     mat[i, ] <- row
@@ -98,16 +101,24 @@ gauss_jacobi <- function(A, b, x0, tol = 1e-6, max_iter = 100) {
 
 ui <- fluidPage(
   tags$head(
-    HTML("<link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'>")
+    HTML("<link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'>"),
+    tags$script(HTML("
+      Shiny.addCustomMessageHandler('darkMode', function(value) {
+        document.body.classList.toggle('dark-mode', value);
+      });
+    "))
   ),
   tags$style(HTML("
     * { font-family: Roboto, Arial, sans-serif; font-weight: 400; }
     .title { text-align: center; }
+    .theme-toggle { text-align: center; margin: 0 auto 15px; }
+    .theme-toggle .form-group { display: inline-block; margin-bottom: 0; }
     footer { text-align: center; padding: 20px 0; }
     .btn-default {
       color: white; background-color: #4a7fb8; border-color: transparent;
       margin: 0 auto; display: block;
     }
+    #download_table { margin-top: 12px; }
     pre#answer, pre#error_out, pre#status {
       background: white; font-size: 14px;
     }
@@ -150,9 +161,37 @@ ui <- fluidPage(
     .status-ok { color: #1d7a3a; font-weight: bold; }
     .status-warn { color: #b8860b; font-weight: bold; }
     .status-bad { color: #b22222; font-weight: bold; }
+    body.dark-mode {
+      background-color: #161b22; color: #e6edf3;
+    }
+    body.dark-mode .well,
+    body.dark-mode .tab-content,
+    body.dark-mode .calculations_box,
+    body.dark-mode pre,
+    body.dark-mode table,
+    body.dark-mode .dataTables_wrapper {
+      background-color: #0d1117; color: #e6edf3; border-color: #30363d;
+    }
+    body.dark-mode .form-control,
+    body.dark-mode .selectize-input {
+      background-color: #161b22; color: #e6edf3; border-color: #30363d;
+    }
+    body.dark-mode .nav-tabs > li > a {
+      color: #e6edf3;
+    }
+    body.dark-mode .status-ok { color: #7ee787; }
+    body.dark-mode .status-warn { color: #f2cc60; }
+    body.dark-mode .status-bad { color: #ff7b72; }
+    body.dark-mode pre#answer,
+    body.dark-mode pre#error_out {
+      background-color: #161b22;
+      color: #e6edf3;
+      border-color: #30363d;
+    }
   ")),
 
   titlePanel(div("Gauss-Jacobi Iterative Method", class = "title")),
+  div(class = "theme-toggle", checkboxInput("dark_mode", "Dark mode", value = FALSE)),
 
   tabsetPanel(
 
@@ -222,7 +261,9 @@ ui <- fluidPage(
             textInput("vecB", "Vector b:", value = "6 25 -11"),
             textInput("x0",   "Initial guess x0:", value = "0 0 0"),
             numericInput("tol", "Tolerance:", value = 1e-6, min = 1e-15, step = 1e-6),
-            numericInput("max_iter", "Max iterations:", value = 50, min = 1, max = 1000, step = 1)
+            numericInput("max_iter", "Max iterations:", value = 50, min = 1, max = 1000, step = 1),
+            actionButton("calculate", "Calculate"),
+            downloadButton("download_table", "Download iteration table")
           ),
           column(width = 12,
             mainPanel(width = 12,
@@ -247,6 +288,16 @@ ui <- fluidPage(
                    "(the maximum absolute change in any component of x) on a logarithmic scale.",
                    "A steady downward trend indicates the method is converging toward the true solution.",
                    "If the curve grows or oscillates, the system likely fails the diagonal-dominance condition.",
+                   "</div>"
+                 )))
+            ),
+            tabPanel("Solution Plot",
+              plotOutput("solution_plot", height = "500px"),
+              h4(style = "font-size: 1.1em; text-align: justify;",
+                 HTML(paste(
+                   "<div style='max-width: 900px; margin: 30px 50px;'>",
+                   "This plot shows how each variable changes across iterations.",
+                   "Lines that flatten out indicate that the variable values are stabilizing.",
                    "</div>"
                  )))
             ),
@@ -281,6 +332,9 @@ ui <- fluidPage(
 # ---------- Server Logic ----------
 
 server <- function(input, output, session) {
+  observe({
+      session$sendCustomMessage("darkMode", isTRUE(input$dark_mode))
+    })
 
   # Validate inputs and run Gauss-Jacobi. Returns a list or stops with a clear message.
   result <- reactive({
@@ -297,9 +351,10 @@ server <- function(input, output, session) {
 
     A  <- tryCatch(parse_matrix(input$matA, n),
                    error = function(e) { validate(need(FALSE, e$message)); NULL })
-    b  <- parse_vector(input$vecB)
-    x0 <- parse_vector(input$x0)
-
+    b  <- tryCatch(parse_vector(input$vecB, "Vector b"),
+                   error = function(e) { validate(need(FALSE, e$message)); NULL })
+    x0 <- tryCatch(parse_vector(input$x0, "Initial guess x0"),
+                   error = function(e) { validate(need(FALSE, e$message)); NULL })
     validate(
       need(length(b)  == n, paste("Vector b must have", n, "values; got", length(b), ".")),
       need(length(x0) == n, paste("Initial guess must have", n, "values; got", length(x0), ".")),
@@ -370,6 +425,26 @@ server <- function(input, output, session) {
       theme_minimal(base_size = 14)
   })
 
+  # Solution plot (x values vs. iteration)
+    output$solution_plot <- renderPlot({
+      res <- result()
+      x_cols <- grep("^x", colnames(res$history), value = TRUE)
+
+      solution_df <- data.frame(
+        Iteration = rep(res$history$Iteration, times = length(x_cols)),
+        Variable = rep(x_cols, each = nrow(res$history)),
+        Value = unlist(res$history[x_cols], use.names = FALSE)
+      )
+
+      ggplot(solution_df, aes(x = Iteration, y = Value, color = Variable)) +
+        geom_line(size = 1.1) +
+        geom_point(size = 2.2) +
+        labs(title = "Solution Values per Iteration",
+            x = "Iteration",
+            y = "Approximate value") +
+        theme_minimal(base_size = 14)
+    })
+
   # Iteration table
   output$table <- renderDataTable({
     res <- result()
@@ -378,6 +453,18 @@ server <- function(input, output, session) {
               rownames = FALSE) |>
       formatRound(columns = colnames(res$history)[-1], digits = 8)
   })
+
+  # Download iteration table as CSV
+  output$download_table <- downloadHandler(
+    filename = function() {
+      paste0("gauss_jacobi_iterations_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      res <- result()
+      write.csv(res$history, file, row.names = FALSE)
+    }
+  )
+
 
   # Step-by-step calculations
   output$formatted_calculations <- renderUI({
