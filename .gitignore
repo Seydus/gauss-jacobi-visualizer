@@ -1,0 +1,55 @@
+```gitignore
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+
+# RStudio files
+.Rproj.user/
+
+# Project files
+*.Rproj
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Shiny / rsconnect deployment files
+rsconnect/
+
+# Quarto cache
+.quarto/
+
+# renv (optional)
+renv/library/
+renv/staging/
+renv/python/
+
+# Packrat (if used)
+packrat/lib*/
+packrat/src/
+packrat/packrat.lock
+
+# Logs
+*.log
+
+# Cache folders
+cache/
+cached/
+
+# Python environments (if ever added)
+venv/
+.env/
+
+# VSCode settings
+.vscode/
+
+# Mac/Linux hidden files
+.*.swp
+```
