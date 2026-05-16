@@ -102,8 +102,6 @@ gauss_jacobi <- function(A, b, x0, tol = 1e-6, max_iter = 100) {
 ui <- fluidPage(
   tags$head(
     tags$title("Gauss-Jacobi Iterative Method"),
-    tags$link(rel = "stylesheet", href = "tailwind.css"),
-    HTML("<link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'>"),
     tags$script(HTML("
       Shiny.addCustomMessageHandler('scrollToTop', function(value) {
         setTimeout(function() {
@@ -185,8 +183,54 @@ ui <- fluidPage(
     "))
   ),
   tags$style(HTML("
+    /* Self-contained UI framework styles. Keep this in app.R so the app can be submitted as one R file. */
+    .tw-calculator-page{margin-left:auto;margin-right:auto;width:100%;max-width:1500px;background-color:rgb(248 250 252);padding:.5rem 1.5rem 2.5rem}
+    .tw-calculator-hero{margin-bottom:1.25rem;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;border-radius:1rem;border:1px solid rgb(226 232 240);background-color:#fff;padding:1.25rem 1.5rem;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .tw-calculator-title{margin:0;font-size:1.875rem;line-height:2.25rem;font-weight:700;letter-spacing:0;color:rgb(2 6 23)}
+    .tw-calculator-subtitle{margin:.5rem 0 0;max-width:56rem;font-size:1rem;line-height:1.75rem;color:rgb(71 85 105)}
+    .tw-calculator-layout{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:1.25rem}
+    @media (min-width:1280px){.tw-calculator-layout{grid-template-columns:minmax(560px,.9fr) minmax(520px,1.1fr);align-items:flex-start}}
+    .tw-calculator-card{border-radius:1rem;border:1px solid rgb(226 232 240);background-color:#fff;padding:1.5rem;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .tw-calculator-input-card{min-width:0}
+    .tw-calculator-card-title{margin:0;font-size:1.25rem;line-height:1.75rem;font-weight:700;color:rgb(2 6 23)}
+    .tw-calculator-help{margin-top:.5rem;font-size:.875rem;line-height:1.5rem;color:rgb(100 116 139)}
+    .tw-story-flow{margin-top:1.25rem;display:grid;gap:1.25rem}
+    .tw-story-step{overflow:hidden;border-radius:1rem;border:1px solid rgb(226 232 240);background-color:rgb(248 250 252);padding:1rem}
+    .tw-story-step-header{margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.75rem}
+    .tw-step-number{display:flex;height:2.25rem;width:2.25rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:9999px;background-color:#284F78;font-size:.875rem;line-height:1.25rem;font-weight:700;color:#fff}
+    .tw-story-step-title{margin:0;font-size:1.125rem;line-height:1.75rem;font-weight:700;color:rgb(2 6 23)}
+    .tw-story-step-copy{margin:.25rem 0 0;font-size:.875rem;line-height:1.5rem;color:rgb(100 116 139)}
+    .tw-settings-grid{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:.75rem}
+    @media (min-width:1024px){.tw-settings-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .tw-equation-inputs{position:relative;display:flex;width:100%;min-width:0;max-width:100%;align-items:flex-end;gap:.75rem;overflow-x:auto;overflow-y:hidden;padding-bottom:.75rem}
+    .tw-equation-sign{display:flex;flex-shrink:0;align-items:center;justify-content:center;align-self:stretch;padding-top:2.75rem;font-size:1.5rem;line-height:2rem;font-weight:700;color:rgb(100 116 139)}
+    .tw-equation-sign-spacer,.tw-equation-spacer-label{display:none}
+    .tw-equation-sign-symbol{display:flex;flex:1 1 0%;align-items:center;justify-content:center;padding-left:.25rem;padding-right:.25rem}
+    .tw-equation-part,.tw-equation-vector-part{position:relative;display:flex;width:max-content;flex-shrink:0;flex-direction:column;align-items:center;padding-top:2.75rem}
+    .tw-calculator-section-label{position:absolute;left:50%;top:1rem;margin:0;display:flex;height:1.25rem;transform:translateX(-50%);align-items:center;justify-content:center;gap:.5rem;white-space:nowrap;text-align:center;font-size:.75rem;line-height:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.025em;color:#356291}
+    .tw-calculator-grid{display:grid;width:100%;align-items:stretch;gap:.5rem}
+    .tw-vector-table-wrap{max-width:none;overflow:visible;border-radius:.75rem;padding:.5rem;width:max-content;background-color:rgb(248 250 252)}
+    .tw-vector-table{width:max-content;background-color:rgb(248 250 252);table-layout:fixed;border-collapse:collapse}
+    .tw-vector-table td,.tw-vector-table th{box-sizing:border-box;border:2px solid rgb(203 213 225);padding:0;text-align:center;vertical-align:middle}
+    .tw-vector-table th{background-color:rgb(241 245 249);padding:.75rem 1rem;font-size:1rem;line-height:1.5rem;font-weight:700;color:rgb(71 85 105)}
+    .tw-vector-table .form-group{margin-bottom:0}
+    .tw-vector-table .control-label{display:none}
+    .tw-unknown-vector{width:max-content;border-collapse:collapse;background-color:rgb(248 250 252)}
+    .tw-unknown-vector td{box-sizing:border-box;height:64px;min-width:60px;border:2px solid rgb(203 213 225);background-color:rgb(241 245 249);padding:0;text-align:center;vertical-align:middle;font-size:1.5rem;line-height:2rem;font-weight:700;color:rgb(100 116 139)}
+    .tw-calculator-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem}
+    .tw-solve-panel{display:grid;gap:1rem;border-radius:1rem;border:1px solid #D9E8F6;background-color:#EEF6FC;padding:1rem}
+    @media (min-width:1024px){.tw-solve-panel{grid-template-columns:minmax(0,1fr) auto;align-items:center}}
+    .tw-solve-title{margin:0;font-size:1.125rem;line-height:1.75rem;font-weight:700;color:rgb(2 6 23)}
+    .tw-solve-copy{margin:.25rem 0 0;font-size:.875rem;line-height:1.5rem;color:rgb(71 85 105)}
+    .tw-results-heading{margin:0 0 1rem;font-size:1.25rem;line-height:1.75rem;font-weight:700;color:rgb(2 6 23)}
+    .tw-result-grid{margin-bottom:1.25rem;display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:1rem}
+    @media (min-width:1024px){.tw-result-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .tw-result-card{min-width:0;overflow:hidden;border-radius:1rem;border:1px solid rgb(226 232 240);background-color:#fff;padding:1.25rem;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .tw-result-card-title{margin:0 0 .5rem;font-size:.875rem;line-height:1.25rem;font-weight:700;text-transform:uppercase;letter-spacing:.025em;color:rgb(100 116 139)}
+    .tw-calculator-tabs{border-radius:1rem;border:1px solid rgb(226 232 240);background-color:#fff;padding:1.25rem;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .tw-chart-note{margin-top:1rem;width:100%;max-width:none;border-radius:.75rem;background-color:rgb(248 250 252);padding:1rem;font-size:1rem;line-height:1.75rem;color:rgb(71 85 105)}
     html, body, input, button, select, textarea, table, .dataTables_wrapper {
-      font-family: 'Roboto', Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
     }
     * { font-family: inherit; font-weight: 400; }
     .title { text-align: center; font-weight: 700; }
