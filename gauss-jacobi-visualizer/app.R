@@ -101,6 +101,7 @@ gauss_jacobi <- function(A, b, x0, tol = 1e-6, max_iter = 100) {
 
 ui <- fluidPage(
   tags$head(
+    tags$link(rel = "stylesheet", href = "tailwind.css"),
     HTML("<link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'>"),
     tags$script(HTML("
       Shiny.addCustomMessageHandler('darkMode', function(value) {
@@ -303,17 +304,83 @@ ui <- fluidPage(
       max-width: 1220px;
       margin: 0 auto;
     }
+    .calculator-hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 0 8px;
+      border-bottom: 1px solid #d8e6f3;
+      margin-bottom: 18px;
+    }
+    .calculator-hero h3 {
+      margin: 0 0 6px;
+      color: #1f4f7d;
+      font-weight: 700;
+    }
+    .calculator-hero p {
+      margin: 0;
+      color: #566575;
+      line-height: 1.5;
+      max-width: 720px;
+    }
+    .calculator-badge {
+      background: #edf7f1;
+      border: 1px solid #bfe1cc;
+      color: #1d6b38;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .calculator-layout {
+      gap: 18px;
+      align-items: start;
+    }
     .calculator-panel {
-      background: #fbfcfe;
-      border: 1px solid #d8e6f3;
       border-radius: 8px;
-      padding: 18px;
       margin-bottom: 18px;
     }
     .calculator-panel h4 {
       color: #1f4f7d;
       font-weight: 700;
       margin-top: 0;
+    }
+    .calculator-panel .help-block {
+      color: #657487;
+      margin: -4px 0 12px;
+    }
+    .calculator-control-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .calculator-input-card {
+      position: sticky;
+      top: 14px;
+    }
+    .calculator-input-card .form-group label {
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    .tw-calculator-input-card .form-group label {
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    .tw-calculator-input-card .form-control {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-shadow: none;
+      font-size: 18px;
+      min-height: 46px;
+    }
+    .tw-calculator-input-card .form-control:focus {
+      border-color: #2c5f93;
+      box-shadow: 0 0 0 3px rgba(44, 95, 147, 0.14);
     }
     .calculator-section-label {
       color: #1f4f7d;
@@ -324,17 +391,19 @@ ui <- fluidPage(
       overflow-x: auto;
       padding-bottom: 4px;
       width: 100%;
+      max-width: 100%;
     }
     .calculator-grid {
       display: grid;
       gap: 8px;
-      min-width: max-content;
+      width: max-content;
+      max-width: 100%;
       margin-bottom: 10px;
       align-items: stretch;
     }
     .calculator-grid-cell,
     .calculator-grid-label {
-      min-width: 86px;
+      min-width: 0;
     }
     .calculator-grid-label {
       background: #eef5fb;
@@ -359,32 +428,339 @@ ui <- fluidPage(
     .calculator-grid .form-group {
       margin-bottom: 0;
     }
+    .calculator-grid .control-label {
+      display: none;
+    }
+    .tw-calculator-grid .form-group {
+      margin-bottom: 0;
+    }
+    .tw-calculator-grid .control-label {
+      display: none;
+    }
     .calculator-grid input.form-control {
       text-align: center;
       padding-left: 6px;
       padding-right: 6px;
       width: 100%;
-      min-width: 72px;
+      min-width: 0;
       box-shadow: none;
     }
     .calculator-grid input.form-control:focus {
       border-color: #4a7fb8;
       box-shadow: 0 0 0 2px rgba(74, 127, 184, 0.16);
     }
+    .tw-calculator-grid input.form-control {
+      text-align: center;
+      padding-left: 6px;
+      padding-right: 6px;
+      width: 100%;
+      min-width: 0;
+      box-shadow: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      min-height: 40px;
+    }
+    .tw-calculator-grid input.form-control:focus {
+      border-color: #4a7fb8;
+      box-shadow: 0 0 0 2px rgba(74, 127, 184, 0.16);
+    }
+    .tw-matrix-table-wrap {
+      width: max-content;
+      max-width: none;
+      overflow: visible;
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 8px;
+    }
+    .tw-matrix-table {
+      border-collapse: collapse;
+      width: max-content;
+      table-layout: fixed;
+      background: #f8fafc;
+      border: 2px solid #b9cbe0;
+    }
+    .tw-matrix-table td {
+      border: 2px solid #b9cbe0;
+      padding: 0;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .tw-matrix-table .form-group {
+      margin-bottom: 0;
+    }
+    .tw-matrix-table .control-label {
+      display: none;
+    }
+    .tw-matrix-table input.form-control {
+      background: #f8fafc;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      color: #1f2937;
+      font-size: var(--cell-font-size, 24px);
+      font-weight: 500;
+      height: 100%;
+      min-height: var(--cell-size, 60px);
+      line-height: 1.2;
+      padding: 0 4px;
+      text-align: center;
+      width: 100%;
+    }
+    .tw-matrix-table input.form-control[type='number'],
+    .tw-vector-table input.form-control[type='number'] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .tw-matrix-table input.form-control[type='number']::-webkit-inner-spin-button,
+    .tw-matrix-table input.form-control[type='number']::-webkit-outer-spin-button,
+    .tw-vector-table input.form-control[type='number']::-webkit-inner-spin-button,
+    .tw-vector-table input.form-control[type='number']::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .tw-matrix-table input.form-control:focus {
+      background: #ffffff;
+      box-shadow: inset 0 0 0 3px rgba(44, 95, 147, 0.22);
+      outline: none;
+    }
+    .tw-vector-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+    }
+    .tw-vector-cell {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .tw-vector-cell-label {
+      color: #475569;
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .tw-vector-cell .form-group {
+      margin-bottom: 0;
+    }
+    .tw-vector-cell .control-label {
+      display: none;
+    }
+    .tw-vector-cell input.form-control {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: none;
+      font-size: 18px;
+      text-align: center;
+    }
+    .tw-vector-cell input.form-control:focus {
+      border-color: #2c5f93;
+      box-shadow: 0 0 0 3px rgba(44, 95, 147, 0.14);
+    }
+    .tw-vector-table-wrap {
+      width: max-content;
+      max-width: none;
+      overflow: visible;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 8px;
+    }
+    .tw-vector-table {
+      border-collapse: collapse;
+      width: max-content;
+      background: #f8fafc;
+    }
+    .tw-vector-table th,
+    .tw-vector-table td {
+      border: 2px solid #cbd5e1;
+      padding: 0;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .tw-vector-table th {
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 10px 14px;
+    }
+    .tw-vector-table .form-group {
+      margin-bottom: 0;
+    }
+    .tw-vector-table .control-label {
+      display: none;
+    }
+    .tw-vector-table input.form-control {
+      background: #f8fafc;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      color: #1f2937;
+      font-size: var(--cell-font-size, 24px);
+      font-weight: 500;
+      height: 100%;
+      min-height: var(--cell-size, 60px);
+      line-height: 1.2;
+      padding: 0 4px;
+      text-align: center;
+      width: 100%;
+    }
+    .tw-vector-table input.form-control:focus {
+      background: #ffffff;
+      box-shadow: inset 0 0 0 3px rgba(44, 95, 147, 0.22);
+      outline: none;
+    }
+    .tw-vector-table-vertical th {
+      min-width: 56px;
+      width: 56px;
+    }
+    .tw-vector-table-vertical td {
+      min-width: 76px;
+      width: 76px;
+      height: 64px;
+    }
+    .tw-unknown-vector {
+      border-collapse: collapse;
+      width: max-content;
+      background: #f8fafc;
+    }
+    .tw-unknown-vector td {
+      border: 2px solid #cbd5e1;
+      color: #334155;
+      font-size: var(--cell-font-size, 24px);
+      font-weight: 700;
+      height: 64px;
+      min-width: 60px;
+      padding: 0 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
     .grid-pair {
       display: grid;
       gap: 18px;
+    }
+    .tw-story-step {
+      overflow: hidden;
+    }
+    .tw-equation-inputs {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 12px;
+      position: relative;
+      scrollbar-color: #94a3b8 #e2e8f0;
+      scrollbar-width: thin;
+      width: 100%;
+    }
+    .tw-equation-inputs::-webkit-scrollbar {
+      height: 12px;
+    }
+    .tw-equation-inputs::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 999px;
+    }
+    .tw-equation-inputs::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 999px;
+    }
+    .tw-vector-scroll-wrap {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-color: #94a3b8 #e2e8f0;
+      scrollbar-width: thin;
+      width: 100%;
+    }
+    .tw-vector-scroll-wrap::-webkit-scrollbar {
+      height: 10px;
+    }
+    .tw-vector-scroll-wrap::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 999px;
+    }
+    .tw-vector-scroll-wrap::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 999px;
+    }
+    .tw-equation-part,
+    .tw-equation-vector-part {
+      flex: 0 0 auto;
+    }
+    .tw-equation-sign {
+      align-self: center;
+      color: #475569;
+      flex: 0 0 auto;
+      font-size: 24px;
+      font-weight: 700;
+      padding: 0 4px 34px;
+    }
+    .tw-equation-spacer-label {
+      height: 20px;
+      margin: 16px 0 8px;
     }
     .calculator-actions {
       display: flex;
       gap: 10px;
       align-items: center;
       flex-wrap: wrap;
-      margin-top: 14px;
+      margin-top: 0;
     }
     .calculator-actions .btn {
       margin: 0;
       display: inline-block;
+    }
+    .calculator-actions #calculate {
+      background: #1f6f54;
+      border-color: #1f6f54;
+      color: #fff;
+      font-weight: 700;
+      min-width: 132px;
+    }
+    .tw-calculator-actions #calculate {
+      background: #1f6f54;
+      border-color: #1f6f54;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      min-height: 44px;
+      min-width: 128px;
+      margin: 0;
+      border-radius: 10px;
+      padding: 9px 18px;
+    }
+    .calculator-actions #download_table {
+      background: #ffffff;
+      border-color: #b9cbe0;
+      color: #1f4f7d;
+      font-weight: 700;
+      margin-top: 0;
+    }
+    .tw-calculator-actions #download_table {
+      background: #ffffff;
+      border-color: #b9cbe0;
+      color: #1f4f7d;
+      font-size: 16px;
+      font-weight: 700;
+      min-height: 44px;
+      margin: 0;
+      border-radius: 10px;
+      padding: 9px 18px;
+    }
+    .calculator-outputs {
+      min-width: 0;
+    }
+    .calculator-result-grid {
+      margin-bottom: 16px;
+    }
+    .calculator-result-grid .card {
+      min-height: 145px;
     }
     .result-summary {
       display: grid;
@@ -435,49 +811,132 @@ ui <- fluidPage(
     .calculator-result-item {
       min-width: 0;
     }
+    .calculator-results-empty {
+      color: #657487;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .calculator-tabs {
+      border-radius: 8px;
+    }
+    .calculator-tabs .tab-content {
+      min-height: 540px;
+      padding-top: 18px;
+    }
+    .chart-note {
+      color: #475569;
+      line-height: 1.55;
+      margin: 16px 8px 0;
+      max-width: 900px;
+    }
     .result-value-grid {
       border-collapse: separate;
       border-spacing: 0;
-      width: 100%;
-      border: 1px solid #d8e6f3;
-      border-radius: 8px;
+      min-width: 100%;
+      width: max-content;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
       overflow: hidden;
-      background: #fbfcfe;
+      background: #ffffff;
     }
     .result-value-grid th {
-      background: #eef5fb;
-      color: #1f4f7d;
+      background: #f8fafc;
+      color: #475569;
       font-weight: 700;
       padding: 8px 10px;
       text-align: center;
-      border-bottom: 1px solid #d8e6f3;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
     }
     .result-value-grid td {
       padding: 10px;
       text-align: center;
-      font-weight: 500;
-      border-left: 1px solid #d8e6f3;
+      font-weight: 700;
+      color: #0f172a;
+      border-left: 1px solid #e2e8f0;
+      min-width: 96px;
+      white-space: nowrap;
     }
     .result-value-grid td:first-child {
       border-left: 0;
     }
     .result-number {
       display: block;
-      background: #fbfcfe;
-      border: 1px solid #d8e6f3;
-      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
       padding: 12px 14px;
       font-size: 18px;
-      font-weight: 500;
+      font-weight: 700;
+      color: #0f172a;
       text-align: center;
       overflow-wrap: anywhere;
+    }
+    .result-scroll {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 4px;
+      scrollbar-color: #94a3b8 #e2e8f0;
+      scrollbar-width: thin;
+      width: 100%;
+    }
+    .result-scroll::-webkit-scrollbar {
+      height: 10px;
+    }
+    .result-scroll::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 999px;
+    }
+    .result-scroll::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 999px;
+    }
+    .tw-result-card .calculator-results-empty {
+      color: #64748b;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .tw-calculator-tabs .nav-tabs {
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .tw-calculator-tabs .nav-tabs > li {
+      margin-bottom: -1px;
+    }
+    .tw-calculator-tabs .nav-tabs > li > a {
+      border: 0;
+      border-radius: 10px 10px 0 0;
+      color: #475569;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+      padding: 10px 14px;
+    }
+    .tw-calculator-tabs .nav-tabs > li.active > a,
+    .tw-calculator-tabs .nav-tabs > li.active > a:focus,
+    .tw-calculator-tabs .nav-tabs > li.active > a:hover {
+      background: #2c5f93;
+      border: 0;
+      color: #ffffff;
+    }
+    .tw-calculator-tabs .tab-content {
+      min-height: 560px;
+      padding-top: 8px;
     }
     @media (max-width: 1000px) {
       .result-summary { grid-template-columns: 1fr; }
       .grid-pair { grid-template-columns: 1fr; }
+      .calculator-input-card { position: static; }
       .calculator-result-card { grid-template-columns: 1fr; }
     }
     @media (max-width: 800px) {
+      .calculator-hero { display: block; }
+      .calculator-badge { display: inline-block; margin-top: 12px; }
+      .calculator-control-row { grid-template-columns: 1fr; }
       .convergence-check { grid-template-columns: 1fr; }
       .dominance-grid { grid-template-columns: 1fr; }
       .dominance-symbol { text-align: center; }
@@ -572,9 +1031,27 @@ ui <- fluidPage(
     body.dark-mode .dominance-table .comparison-cell { color: #79c0ff; }
     body.dark-mode .dominance-table .pass-cell { color: #7ee787; }
     body.dark-mode .calculator-panel,
-    body.dark-mode .result-card {
+    body.dark-mode .result-card,
+    body.dark-mode .calculator-tabs {
       background: #0d1117;
       border-color: #30363d;
+    }
+    body.dark-mode .calculator-hero {
+      border-bottom-color: #30363d;
+    }
+    body.dark-mode .calculator-hero h3 {
+      color: #79c0ff;
+    }
+    body.dark-mode .calculator-hero p,
+    body.dark-mode .calculator-panel .help-block,
+    body.dark-mode .calculator-results-empty,
+    body.dark-mode .chart-note {
+      color: #9aa7b5;
+    }
+    body.dark-mode .calculator-badge {
+      background: #0f2f23;
+      border-color: #255f46;
+      color: #7ee787;
     }
     body.dark-mode .calculator-result-card {
       background: #161b22;
@@ -608,6 +1085,18 @@ ui <- fluidPage(
     body.dark-mode .calculator-grid-cell {
       background: #0d1117;
       border-color: #30363d;
+    }
+    body.dark-mode .calculator-input-card .form-group label {
+      color: #c9d1d9;
+    }
+    body.dark-mode .calculator-actions #calculate {
+      background: #23845f;
+      border-color: #23845f;
+    }
+    body.dark-mode .calculator-actions #download_table {
+      background: #161b22;
+      border-color: #30363d;
+      color: #79c0ff;
     }
     body.dark-mode .status-ok { color: #7ee787; }
     body.dark-mode .status-warn { color: #f2cc60; }
@@ -1064,74 +1553,119 @@ ui <- fluidPage(
 
     # ----- Calculate Tab -----
     tabPanel("Calculate",
-      fluidRow(
-        column(width = 3,
-          sidebarPanel(width = 12,
-            h4("Calculator"),
-            numericInput("n", "Number of unknowns:", value = 3, min = 2, max = 8, step = 1),
-            textAreaInput("matA", "Coefficient matrix A:",
-                          value = "10 -1 2\n-1 11 -1\n2 -1 10",
-                          rows = 4, resize = "vertical"),
-            textInput("vecB", "Right-hand side vector b:", value = "6 25 -11"),
-            textInput("x0",   HTML("Initial guess x<sup>(0)</sup>:"), value = "0 0 0"),
-            numericInput("tol", "Tolerance:", value = 1e-6, min = 1e-15, step = 1e-6),
-            numericInput("max_iter", "Max iterations:", value = 50, min = 1, max = 1000, step = 1),
-            actionButton("calculate", "Calculate"),
-            downloadButton("download_table", "Download iteration table")
-          ),
+      div(class = "tw-calculator-page",
+        div(class = "tw-calculator-hero",
+          div(
+            h3(class = "tw-calculator-title", "Build and Solve Ax = b"),
+            p(class = "tw-calculator-subtitle", "Follow the setup from the size of the system, to the coefficient matrix, to the starting estimate, then inspect how the Jacobi method converges.")
+          )
         ),
+        div(class = "tw-calculator-layout",
+          div(class = "tw-calculator-card tw-calculator-input-card",
+            h4(class = "tw-calculator-card-title", "System Setup"),
+            p(class = "tw-calculator-help", "The sample system is loaded by default. Change the size first, then fill in the matching matrix and vectors."),
+            div(class = "tw-story-flow",
+              div(class = "tw-story-step",
+                div(class = "tw-story-step-header",
+                  span(class = "tw-step-number", "1"),
+                  div(
+                    h5(class = "tw-story-step-title", "Choose the system size and stopping rules"),
+                    p(class = "tw-story-step-copy", "The matrix, right-hand side vector, and initial guess all resize from this value.")
+                  )
+                ),
+                div(class = "tw-settings-grid",
+                  numericInput("n", "Matrix size (n x n)", value = 3, min = 2, step = 1),
+                  numericInput("max_iter", "Max iterations", value = 50, min = 1, max = 1000, step = 1),
+                  numericInput("tol", "Tolerance", value = 1e-6, min = 1e-15, step = 1e-6)
+                )
+              ),
 
-        column(width = 8,
-          div(class = "calculator-result-card",
-            div(class = "calculator-result-item",
-              h4("Approximate solution vector"),
-              uiOutput("answer")
-            ),
-            div(class = "calculator-result-item",
-              h4("Final approximation error"),
-              uiOutput("error_out")
-            ),
-            div(class = "calculator-result-item",
-              h4("Convergence status"),
-              uiOutput("status")
+              div(class = "tw-story-step",
+                div(class = "tw-story-step-header",
+                  span(class = "tw-step-number", "2"),
+                  div(
+                    h5(class = "tw-story-step-title", "Enter the linear system"),
+                    p(class = "tw-story-step-copy", HTML("Fill the coefficient matrix <strong>A</strong> and the right-hand side vector <strong>b</strong>."))
+                  )
+                ),
+                div(class = "tw-equation-inputs",
+                  div(class = "tw-equation-part",
+                    div(class = "tw-calculator-section-label", "Coefficient matrix A"),
+                    uiOutput("matrix_grid_input")
+                  ),
+                  div(class = "tw-equation-vector-part",
+                    div(class = "tw-equation-spacer-label"),
+                    uiOutput("unknown_vector")
+                  ),
+                  div(class = "tw-equation-sign", "="),
+                  div(class = "tw-equation-part",
+                    div(class = "tw-calculator-section-label", "Right-hand side vector b"),
+                    uiOutput("b_grid_input")
+                  )
+                )
+              ),
+
+              div(class = "tw-story-step",
+                div(class = "tw-story-step-header",
+                  span(class = "tw-step-number", "3"),
+                  div(
+                    h5(class = "tw-story-step-title", HTML("Set the starting estimate x<sup>(0)</sup>")),
+                    p(class = "tw-story-step-copy", "These are the first values used by the Jacobi iteration.")
+                  )
+                ),
+                uiOutput("x0_grid_input")
+              ),
+
+              div(class = "tw-solve-panel",
+                div(
+                  h5(class = "tw-solve-title", "Run the iteration"),
+                  p(class = "tw-solve-copy", "After calculation, the results below show the solution, error, status, plots, steps, and table.")
+                ),
+                div(class = "tw-calculator-actions",
+                  actionButton("calculate", "Calculate"),
+                  downloadButton("download_table", "Download table")
+                )
+              )
             )
           ),
-          tabsetPanel(
-            tabPanel("Convergence Plot",
-              plotOutput("plot", height = "500px"),
-              h4(style = "font-size: 1.1em; text-align: justify;",
-                 HTML(paste(
-                   "<div style='max-width: 900px; margin: 30px 50px;'>",
-                   "This plot shows the <strong>error at each iteration</strong>",
-                   "(the maximum absolute change in any component of x) on a logarithmic scale.",
-                   "A steady downward trend indicates the method is converging toward the true solution.",
-                   "If the curve grows or oscillates, the system likely fails the diagonal-dominance condition.",
-                   "</div>"
-                 )))
+          div(class = "calculator-outputs",
+            h4(class = "tw-results-heading", "Results"),
+            div(class = "tw-result-grid",
+              div(class = "tw-result-card",
+                h4(class = "tw-result-card-title", "Solution Vector"),
+                uiOutput("answer")
+              ),
+              div(class = "tw-result-card",
+                h4(class = "tw-result-card-title", "Final Error"),
+                uiOutput("error_out")
+              ),
+              div(class = "tw-result-card",
+                h4(class = "tw-result-card-title", "Status"),
+                uiOutput("status")
+              )
             ),
-            tabPanel("Solution Plot",
-              plotOutput("solution_plot", height = "500px"),
-              h4(style = "font-size: 1.1em; text-align: justify;",
-                 HTML(paste(
-                   "<div style='max-width: 900px; margin: 30px 50px;'>",
-                   "This plot shows how each variable changes across iterations.",
-                   "Lines that flatten out indicate that the variable values are stabilizing.",
-                   "</div>"
-                 )))
-            ),
-            tabPanel("Steps", uiOutput("formatted_calculations")),
-            tabPanel("Iteration Table",
-              dataTableOutput("table"),
-              h4(style = "font-size: 1.1em; text-align: justify;",
-                 HTML(paste(
-                   "<div style='max-width: 900px; margin: 30px 20px;'>",
-                   "Each row records one full Gauss-Jacobi iteration. The columns",
-                   "<strong>x<sub>1</sub>, x<sub>2</sub>, ...</strong> are the components of the current estimate,",
-                   "and <strong>Error</strong> is the maximum absolute change since the previous",
-                   "iterate. Iteration stops when the error falls below the chosen tolerance",
-                   "or the maximum iteration count is reached.",
-                   "</div>"
-                 )))
+            div(class = "tw-calculator-tabs",
+              tabsetPanel(
+                tabPanel("Convergence Plot",
+                plotOutput("plot", height = "500px"),
+                div(class = "tw-chart-note",
+                  HTML("This plot shows the <strong>error at each iteration</strong> on a logarithmic scale. A steady downward trend indicates the method is converging toward the true solution.")
+                )
+              ),
+                tabPanel("Solution Plot",
+                plotOutput("solution_plot", height = "500px"),
+                div(class = "tw-chart-note",
+                  "This plot shows how each variable changes across iterations. Lines that flatten out indicate that the values are stabilizing."
+                )
+              ),
+                tabPanel("Steps", uiOutput("formatted_calculations")),
+                tabPanel("Iteration Table",
+                dataTableOutput("table"),
+                div(class = "tw-chart-note",
+                  HTML("Each row records one full Gauss-Jacobi iteration. The <strong>Error</strong> column is the maximum absolute change since the previous iterate.")
+                )
+                )
+              )
             )
           )
         )
@@ -1168,6 +1702,13 @@ default_x0_value <- function(i, n) {
   0
 }
 
+matrix_ui_metrics <- function(n) {
+  if (n <= 3) return(list(cell = 64, vector = 76, unknown = 64, font = 24))
+  if (n <= 5) return(list(cell = 56, vector = 68, unknown = 56, font = 22))
+  if (n <= 7) return(list(cell = 50, vector = 62, unknown = 50, font = 20))
+  list(cell = 48, vector = 60, unknown = 48, font = 18)
+}
+
 server <- function(input, output, session) {
   observe({
       session$sendCustomMessage("darkMode", isTRUE(input$dark_mode))
@@ -1180,78 +1721,90 @@ server <- function(input, output, session) {
 
   output$matrix_grid_input <- renderUI({
     n <- as.integer(input$n)
-    headers <- c(
-      tags$div(class = "calculator-grid-label", ""),
-      lapply(seq_len(n), function(j) {
-        tags$div(class = "calculator-grid-label", HTML(paste0("x<sub>", j, "</sub>")))
-      })
-    )
+    metrics <- matrix_ui_metrics(n)
+    cell_size <- metrics$cell
+    cell_style <- paste0("width:", cell_size, "px; min-width:", cell_size, "px; height:", cell_size, "px;")
+
     rows <- lapply(seq_len(n), function(i) {
       cells <- lapply(seq_len(n), function(j) {
         id <- paste0("a_", i, "_", j)
         value <- isolate(input[[id]])
         if (is.null(value)) value <- default_A_value(i, j, n)
-        tags$div(class = "calculator-grid-cell",
+        tags$td(style = cell_style,
           numericInput(id, label = NULL, value = value, step = 1, width = "100%")
         )
       })
-      c(tags$div(class = "calculator-grid-label", paste("Row", i)), cells)
+      tags$tr(cells)
     })
 
-    div(class = "calculator-grid-wrap",
-      tags$div(
-        class = "calculator-grid",
-        style = paste0("grid-template-columns: repeat(", n + 1, ", minmax(86px, 1fr));"),
-        headers,
-        unlist(rows, recursive = FALSE)
+    div(class = "tw-matrix-table-wrap", style = paste0("--cell-font-size:", metrics$font, "px; --cell-size:", metrics$cell, "px;"),
+      tags$table(class = "tw-matrix-table",
+        do.call(tags$tbody, rows)
       )
     )
   })
 
   output$b_grid_input <- renderUI({
     n <- as.integer(input$n)
-    headers <- lapply(seq_len(n), function(i) {
-      tags$div(class = "calculator-grid-label", HTML(paste0("b<sub>", i, "</sub>")))
-    })
-    cells <- lapply(seq_len(n), function(i) {
+    metrics <- matrix_ui_metrics(n)
+    cell_size <- metrics$vector
+    cell_style <- paste0("width:", cell_size, "px; min-width:", cell_size, "px; height:", metrics$cell, "px;")
+    rows <- lapply(seq_len(n), function(i) {
       id <- paste0("b_", i)
       value <- isolate(input[[id]])
       if (is.null(value)) value <- default_b_value(i, n)
-      tags$div(class = "calculator-grid-cell",
-        numericInput(id, label = NULL, value = value, step = 1, width = "100%")
+      tags$tr(
+        tags$td(style = cell_style,
+          numericInput(id, label = NULL, value = value, step = 1, width = "100%")
+        )
       )
     })
 
-    div(class = "calculator-grid-wrap",
-      tags$div(
-        class = "calculator-grid",
-        style = paste0("grid-template-columns: repeat(", n, ", minmax(86px, 1fr));"),
-        headers,
-        cells
+    div(class = "tw-vector-table-wrap", style = paste0("--cell-font-size:", metrics$font, "px; --cell-size:", metrics$cell, "px;"),
+      tags$table(class = "tw-vector-table tw-vector-table-vertical",
+        do.call(tags$tbody, rows)
+      )
+    )
+  })
+
+  output$unknown_vector <- renderUI({
+    n <- as.integer(input$n)
+    metrics <- matrix_ui_metrics(n)
+    cell_style <- paste0("height:", metrics$cell, "px; min-width:", metrics$unknown, "px;")
+    rows <- lapply(seq_len(n), function(i) {
+      tags$tr(tags$td(style = cell_style, HTML(paste0("x<sub>", i, "</sub>"))))
+    })
+
+    div(class = "tw-vector-table-wrap", style = paste0("--cell-font-size:", metrics$font, "px; --cell-size:", metrics$cell, "px;"),
+      tags$table(class = "tw-unknown-vector",
+        do.call(tags$tbody, rows)
       )
     )
   })
 
   output$x0_grid_input <- renderUI({
     n <- as.integer(input$n)
+    metrics <- matrix_ui_metrics(n)
+    cell_size <- metrics$vector
+    cell_style <- paste0("width:", cell_size, "px; min-width:", cell_size, "px; height:", metrics$cell, "px;")
     headers <- lapply(seq_len(n), function(i) {
-      tags$div(class = "calculator-grid-label", HTML(paste0("x<sub>", i, "</sub><sup>(0)</sup>")))
+      tags$th(style = paste0("width:", cell_size, "px; min-width:", cell_size, "px;"),
+        HTML(paste0("x<sub>", i, "</sub><sup>(0)</sup>"))
+      )
     })
     cells <- lapply(seq_len(n), function(i) {
       id <- paste0("x0_", i)
       value <- isolate(input[[id]])
       if (is.null(value)) value <- default_x0_value(i, n)
-      tags$div(class = "calculator-grid-cell",
+      tags$td(style = cell_style,
         numericInput(id, label = NULL, value = value, step = 1, width = "100%")
       )
     })
 
-    div(class = "calculator-grid-wrap",
-      tags$div(
-        class = "calculator-grid",
-        style = paste0("grid-template-columns: repeat(", n, ", minmax(86px, 1fr));"),
-        headers,
-        cells
+    div(class = "tw-vector-table-wrap tw-vector-scroll-wrap", style = paste0("--cell-font-size:", metrics$font, "px; --cell-size:", metrics$cell, "px;"),
+      tags$table(class = "tw-vector-table",
+        tags$thead(tags$tr(headers)),
+        tags$tbody(tags$tr(cells))
       )
     )
   })
@@ -1289,24 +1842,16 @@ server <- function(input, output, session) {
 
     validate(
       need(!is.null(input$n) && input$n >= 2, "n must be at least 2."),
-      need(nzchar(input$matA), "Matrix A is empty."),
-      need(nzchar(input$vecB), "Vector b is empty."),
-      need(nzchar(input$x0),   "Initial guess x0 is empty."),
       need(input$tol > 0, "Tolerance must be positive."),
       need(input$max_iter >= 1, "Max iterations must be at least 1.")
     )
 
     n <- as.integer(input$n)
 
-    A  <- tryCatch(parse_matrix(input$matA, n),
-                   error = function(e) { validate(need(FALSE, e$message)); NULL })
-    b  <- tryCatch(parse_vector(input$vecB, "Vector b"),
-                   error = function(e) { validate(need(FALSE, e$message)); NULL })
-    x0 <- tryCatch(parse_vector(input$x0, "Initial guess x0"),
-                   error = function(e) { validate(need(FALSE, e$message)); NULL })
+    A <- read_matrix_grid(n)
+    b <- read_vector_grid("b", n, "b")
+    x0 <- read_vector_grid("x0", n, "Initial guess")
     validate(
-      need(length(b)  == n, paste("Vector b must have", n, "values; got", length(b), ".")),
-      need(length(x0) == n, paste("Initial guess must have", n, "values; got", length(x0), ".")),
       need(all(diag(A) != 0), "Diagonal entries of A must be non-zero (cannot divide by zero).")
     )
 
@@ -1319,27 +1864,36 @@ server <- function(input, output, session) {
 
   # Final solution vector
   output$answer <- renderUI({
+    if (input$calculate < 1) {
+      return(div(class = "calculator-results-empty", "Run the calculator to show the solution vector."))
+    }
     res <- result()
     labels <- paste0("x<sub>", seq_along(res$solution), "</sub>")
     values <- format(round(res$solution, 8), nsmall = 6, trim = TRUE)
 
     HTML(paste0(
-      "<table class='result-value-grid'><tr>",
+      "<div class='result-scroll'><table class='result-value-grid'><tr>",
       paste0("<th>", labels, "</th>", collapse = ""),
       "</tr><tr>",
       paste0("<td>", values, "</td>", collapse = ""),
-      "</tr></table>"
+      "</tr></table></div>"
     ))
   })
 
   # Final error
   output$error_out <- renderUI({
+    if (input$calculate < 1) {
+      return(div(class = "calculator-results-empty", "Waiting for a calculation."))
+    }
     res <- result()
     HTML(paste0("<span class='result-number'>", formatC(res$final_err, format = "e", digits = 6), "</span>"))
   })
 
   # Convergence status banner
   output$status <- renderUI({
+    if (input$calculate < 1) {
+      return(div(class = "calculator-results-empty", "Convergence details will appear here."))
+    }
     res <- result()
     parts <- list()
 

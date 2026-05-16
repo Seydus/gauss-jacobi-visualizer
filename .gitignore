@@ -36,6 +36,9 @@ packrat/lib*/
 packrat/src/
 packrat/packrat.lock
 
+# Node / Tailwind dependencies
+node_modules/
+
 # Logs
 *.log
 
