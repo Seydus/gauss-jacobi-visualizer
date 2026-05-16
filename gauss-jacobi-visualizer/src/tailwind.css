@@ -192,6 +192,6 @@
   }
 
   .tw-chart-note {
-    @apply tw-mt-4 tw-max-w-4xl tw-rounded-xl tw-bg-slate-50 tw-p-4 tw-text-base tw-leading-7 tw-text-slate-600;
+    @apply tw-mt-4 tw-w-full tw-max-w-none tw-rounded-xl tw-bg-slate-50 tw-p-4 tw-text-base tw-leading-7 tw-text-slate-600;
   }
 }

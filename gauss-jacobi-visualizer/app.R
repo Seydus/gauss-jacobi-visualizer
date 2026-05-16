@@ -101,6 +101,7 @@ gauss_jacobi <- function(A, b, x0, tol = 1e-6, max_iter = 100) {
 
 ui <- fluidPage(
   tags$head(
+    tags$title("Gauss-Jacobi Iterative Method"),
     tags$link(rel = "stylesheet", href = "tailwind.css"),
     HTML("<link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'>"),
     tags$script(HTML("
@@ -109,6 +110,58 @@ ui <- fluidPage(
           window.scrollTo(0, 0);
         }, 100);
       });
+      function setCalculationLoader(visible) {
+        var loaders = [
+          document.getElementById('calculator_loading_bar'),
+          document.getElementById('calculation_results_loader')
+        ].filter(Boolean);
+        loaders.forEach(function(loader) {
+          if (visible) {
+            loader.dataset.shownAt = String(Date.now());
+            loader.classList.add('is-visible');
+            return;
+          }
+          var shownAt = Number(loader.dataset.shownAt || 0);
+          var delay = Math.max(0, 550 - (Date.now() - shownAt));
+          setTimeout(function() {
+            loader.classList.remove('is-visible');
+          }, delay);
+        });
+      }
+      Shiny.addCustomMessageHandler('calculationFinished', function(value) {
+        setCalculationLoader(false);
+      });
+      function setCalculatePageLoader(visible) {
+        var loader = document.getElementById('calculate_page_loader');
+        if (!loader) return;
+        if (visible) {
+          loader.dataset.shownAt = String(Date.now());
+          loader.classList.add('is-visible');
+          return;
+        }
+        var shownAt = Number(loader.dataset.shownAt || 0);
+        var delay = Math.max(0, 450 - (Date.now() - shownAt));
+        setTimeout(function() {
+          loader.classList.remove('is-visible');
+        }, delay);
+      }
+      Shiny.addCustomMessageHandler('calculatePageLoading', function(value) {
+        setCalculatePageLoader(!!value);
+      });
+      document.addEventListener('click', function(event) {
+        var tab = event.target && event.target.closest ? event.target.closest('a[data-value=\"Calculate\"]') : null;
+        if (tab) setCalculatePageLoader(true);
+      });
+      document.addEventListener('pointerdown', function(event) {
+        var button = event.target && event.target.closest ? event.target.closest('#calculate') : null;
+        if (!button) return;
+        setCalculationLoader(true);
+      }, true);
+      document.addEventListener('click', function(event) {
+        var button = event.target && event.target.closest ? event.target.closest('#calculate') : null;
+        if (!button) return;
+        setCalculationLoader(true);
+      }, true);
       document.addEventListener('input', function(event) {
         if (!window.Shiny || !event.target || !event.target.id) return;
         if (/^(a_\\d+_\\d+|b_\\d+|x0_\\d+|n|tol|max_iter)$/.test(event.target.id)) {
@@ -136,7 +189,19 @@ ui <- fluidPage(
       font-family: 'Roboto', Arial, sans-serif;
     }
     * { font-family: inherit; font-weight: 400; }
-    .title { text-align: center; }
+    .title { text-align: center; font-weight: 700; }
+    .title-credit {
+      color: #475569;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+    .title-credit-label {
+      color: #284F78;
+      font-weight: 700;
+      margin-right: 6px;
+    }
     footer { text-align: center; padding: 20px 0; }
     .btn-default {
       color: white; background-color: #427AB5; border-color: transparent;
@@ -342,6 +407,53 @@ ui <- fluidPage(
     .calculator-page {
       max-width: 1220px;
       margin: 0 auto;
+    }
+    .tw-calculator-page {
+      position: relative;
+    }
+    .calculate-page-loader {
+      align-items: center;
+      background: rgba(248, 251, 254, 0.88);
+      backdrop-filter: blur(3px);
+      border-radius: 16px;
+      bottom: 0;
+      color: #284F78;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+      left: 0;
+      min-height: 220px;
+      position: absolute;
+      right: 0;
+      top: 0;
+      z-index: 20;
+    }
+    .calculate-page-loader.is-visible {
+      display: flex;
+    }
+    .calculate-page-loader-bar {
+      background: rgba(66, 122, 181, 0.14);
+      border-radius: 999px;
+      height: 8px;
+      overflow: hidden;
+      position: relative;
+      width: min(360px, 72%);
+    }
+    .calculate-page-loader-bar::before {
+      animation: calculator-loading-sweep 1s ease-in-out infinite;
+      background: linear-gradient(90deg, transparent, #427AB5, transparent);
+      content: '';
+      height: 100%;
+      left: -45%;
+      position: absolute;
+      top: 0;
+      width: 45%;
+    }
+    .calculate-page-loader-label {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0;
     }
     .calculator-hero {
       display: flex;
@@ -891,6 +1003,37 @@ ui <- fluidPage(
     }
     .calculator-outputs {
       min-width: 0;
+      position: relative;
+    }
+    .calculation-results-loader {
+      align-items: center;
+      background: rgba(248, 251, 254, 0.86);
+      backdrop-filter: blur(3px);
+      border-radius: 16px;
+      bottom: 0;
+      color: #284F78;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+      left: 0;
+      min-height: 260px;
+      position: absolute;
+      right: 0;
+      top: 34px;
+      z-index: 15;
+    }
+    .calculation-results-loader.is-visible {
+      display: flex;
+    }
+    .calculation-results-loader .calculator-loading-bar {
+      display: block;
+      max-width: 360px;
+      width: min(360px, 72%);
+    }
+    .calculation-results-loader-label {
+      font-size: 16px;
+      font-weight: 700;
     }
     .calculator-result-grid {
       margin-bottom: 16px;
@@ -963,12 +1106,44 @@ ui <- fluidPage(
       color: #475569;
       font-size: 16px;
       line-height: 1.55;
-      margin: 16px 8px 0;
-      max-width: 900px;
+      margin: 16px 0 0;
+      max-width: none;
+      width: 100%;
+      box-sizing: border-box;
     }
     .tw-chart-note {
       font-size: 16px;
       line-height: 1.65;
+      max-width: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .calculator-loading-bar {
+      background: rgba(66, 122, 181, 0.12);
+      border-radius: 999px;
+      display: none;
+      grid-column: 1 / -1;
+      height: 8px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+    .calculator-loading-bar.is-visible {
+      display: block;
+    }
+    .calculator-loading-bar::before {
+      animation: calculator-loading-sweep 1s ease-in-out infinite;
+      background: linear-gradient(90deg, transparent, #427AB5, transparent);
+      content: '';
+      height: 100%;
+      left: -45%;
+      position: absolute;
+      top: 0;
+      width: 45%;
+    }
+    @keyframes calculator-loading-sweep {
+      0% { left: -45%; }
+      100% { left: 100%; }
     }
     .shiny-notification {
       border: 1px solid #D9E8F6;
@@ -1174,7 +1349,15 @@ ui <- fluidPage(
     .tw-calculator-section-label { font-size: 12px; line-height: 1.4; }
   ")),
 
-  titlePanel(div("Gauss-Jacobi Iterative Method", class = "title")),
+  titlePanel(
+    div(class = "title",
+      div("Gauss-Jacobi Iterative Method"),
+      div(class = "title-credit",
+        span(class = "title-credit-label", "Prepared by"),
+        span("Catanpatan · Apos · Clarit · Vicen · Capoy")
+      )
+    )
+  ),
 
   tabsetPanel(id = "main_tabs",
 
@@ -1618,6 +1801,10 @@ ui <- fluidPage(
     # ----- Calculate Tab -----
     tabPanel("Calculate",
       div(class = "tw-calculator-page",
+        div(id = "calculate_page_loader", class = "calculate-page-loader",
+          div(class = "calculate-page-loader-bar"),
+          div(class = "calculate-page-loader-label", "Loading calculator components...")
+        ),
         div(class = "tw-calculator-hero",
           div(
             h3(class = "tw-calculator-title", "Build and Solve Ax = b"),
@@ -1691,11 +1878,16 @@ ui <- fluidPage(
                 div(class = "tw-calculator-actions",
                   actionButton("calculate", "Calculate"),
                   downloadButton("download_table", "Download table")
-                )
+                ),
+                div(id = "calculator_loading_bar", class = "calculator-loading-bar")
               )
             )
           ),
           div(class = "calculator-outputs",
+            div(id = "calculation_results_loader", class = "calculation-results-loader",
+              div(class = "calculator-loading-bar is-visible"),
+              div(class = "calculation-results-loader-label", "Calculating results...")
+            ),
             h4(class = "tw-results-heading", "Results"),
             div(class = "tw-result-grid",
               div(class = "tw-result-card",
@@ -1743,7 +1935,8 @@ ui <- fluidPage(
   tags$footer(
     strong("Numerical Methods Final Activity"),
     br(),
-    "Gauss-Jacobi Method - 2026"
+    strong("Gauss-Jacobi Iterative Method"),
+    " - 2026"
   )
 )
 
@@ -1781,6 +1974,14 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "main_tabs", selected = "Calculate")
     session$sendCustomMessage("scrollToTop", TRUE)
   })
+
+  observeEvent(input$main_tabs, {
+    if (!identical(input$main_tabs, "Calculate")) return()
+    session$sendCustomMessage("calculatePageLoading", TRUE)
+    session$onFlushed(function() {
+      session$sendCustomMessage("calculatePageLoading", FALSE)
+    }, once = TRUE)
+  }, ignoreInit = TRUE)
 
   output$matrix_grid_input <- renderUI({
     n <- as.integer(input$n)
@@ -1969,6 +2170,10 @@ server <- function(input, output, session) {
 
   # Validate inputs and run Gauss-Jacobi only when the Calculate button is clicked.
   observeEvent(input$calculate, {
+    on.exit(session$onFlushed(function() {
+      session$sendCustomMessage("calculationFinished", TRUE)
+    }, once = TRUE), add = TRUE)
+
     validate(
       need(!is.null(input$n) && input$n >= 2, "n must be at least 2."),
       need(input$tol > 0, "Tolerance must be positive."),
