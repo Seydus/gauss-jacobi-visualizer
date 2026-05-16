@@ -104,9 +104,6 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", href = "tailwind.css"),
     HTML("<link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'>"),
     tags$script(HTML("
-      Shiny.addCustomMessageHandler('darkMode', function(value) {
-        document.body.classList.toggle('dark-mode', value);
-      });
       Shiny.addCustomMessageHandler('scrollToTop', function(value) {
         setTimeout(function() {
           window.scrollTo(0, 0);
@@ -120,8 +117,6 @@ ui <- fluidPage(
     }
     * { font-family: inherit; font-weight: 400; }
     .title { text-align: center; }
-    .theme-toggle { text-align: center; margin: 0 auto 15px; }
-    .theme-toggle .form-group { display: inline-block; margin-bottom: 0; }
     footer { text-align: center; padding: 20px 0; }
     .btn-default {
       color: white; background-color: #4a7fb8; border-color: transparent;
@@ -316,11 +311,13 @@ ui <- fluidPage(
     .calculator-hero h3 {
       margin: 0 0 6px;
       color: #1f4f7d;
+      font-size: 28px;
       font-weight: 700;
     }
     .calculator-hero p {
       margin: 0;
       color: #566575;
+      font-size: 18px;
       line-height: 1.5;
       max-width: 720px;
     }
@@ -330,6 +327,7 @@ ui <- fluidPage(
       color: #1d6b38;
       border-radius: 6px;
       padding: 8px 12px;
+      font-size: 14px;
       font-weight: 700;
       white-space: nowrap;
     }
@@ -343,11 +341,13 @@ ui <- fluidPage(
     }
     .calculator-panel h4 {
       color: #1f4f7d;
+      font-size: 20px;
       font-weight: 700;
       margin-top: 0;
     }
     .calculator-panel .help-block {
       color: #657487;
+      font-size: 14px;
       margin: -4px 0 12px;
     }
     .calculator-control-row {
@@ -361,13 +361,13 @@ ui <- fluidPage(
     }
     .calculator-input-card .form-group label {
       color: #334155;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0;
     }
     .tw-calculator-input-card .form-group label {
       color: #334155;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0;
     }
@@ -384,6 +384,7 @@ ui <- fluidPage(
     }
     .calculator-section-label {
       color: #1f4f7d;
+      font-size: 18px;
       font-weight: 700;
       margin: 18px 0 8px;
     }
@@ -408,6 +409,7 @@ ui <- fluidPage(
     .calculator-grid-label {
       background: #eef5fb;
       color: #1f4f7d;
+      font-size: 18px;
       font-weight: 700;
       text-align: center;
       border: 1px solid #d8e6f3;
@@ -457,7 +459,7 @@ ui <- fluidPage(
       min-width: 0;
       box-shadow: none;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 500;
       min-height: 40px;
     }
@@ -538,7 +540,7 @@ ui <- fluidPage(
     .tw-vector-cell-label {
       color: #475569;
       display: block;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       margin-bottom: 8px;
       text-align: center;
@@ -583,7 +585,7 @@ ui <- fluidPage(
     .tw-vector-table th {
       background: #f1f5f9;
       color: #475569;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       padding: 10px 14px;
     }
@@ -727,7 +729,7 @@ ui <- fluidPage(
       background: #1f6f54;
       border-color: #1f6f54;
       color: #fff;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
       min-height: 44px;
       min-width: 128px;
@@ -746,7 +748,7 @@ ui <- fluidPage(
       background: #ffffff;
       border-color: #b9cbe0;
       color: #1f4f7d;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
       min-height: 44px;
       margin: 0;
@@ -783,7 +785,7 @@ ui <- fluidPage(
       color: #1f4f7d;
       font-weight: 700;
       margin-top: 0;
-      font-size: 1.05em;
+      font-size: 20px;
     }
     .calculator-result-card {
       background: #ffffff;
@@ -801,10 +803,10 @@ ui <- fluidPage(
       color: #1f4f7d;
       font-weight: 700;
       margin: 0 0 8px;
-      font-size: 1em;
+      font-size: 20px;
     }
     .calculator-result-card pre {
-      font-size: 13px;
+      font-size: 14px;
       margin-bottom: 8px;
       white-space: pre-wrap;
     }
@@ -842,6 +844,7 @@ ui <- fluidPage(
     .result-value-grid th {
       background: #f8fafc;
       color: #475569;
+      font-size: 14px;
       font-weight: 700;
       padding: 8px 10px;
       text-align: center;
@@ -851,6 +854,7 @@ ui <- fluidPage(
     .result-value-grid td {
       padding: 10px;
       text-align: center;
+      font-size: 18px;
       font-weight: 700;
       color: #0f172a;
       border-left: 1px solid #e2e8f0;
@@ -866,7 +870,7 @@ ui <- fluidPage(
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 12px 14px;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: #0f172a;
       text-align: center;
@@ -894,7 +898,7 @@ ui <- fluidPage(
     }
     .tw-result-card .calculator-results-empty {
       color: #64748b;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.55;
     }
     .tw-calculator-tabs .nav-tabs {
@@ -911,7 +915,7 @@ ui <- fluidPage(
       border: 0;
       border-radius: 10px 10px 0 0;
       color: #475569;
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 700;
       line-height: 1.2;
       padding: 10px 14px;
@@ -973,144 +977,19 @@ ui <- fluidPage(
     .status-ok { color: #1d7a3a; font-weight: bold; }
     .status-warn { color: #b8860b; font-weight: bold; }
     .status-bad { color: #b22222; font-weight: bold; }
-    body.dark-mode {
-      background-color: #161b22; color: #e6edf3;
-    }
-    body.dark-mode .well,
-    body.dark-mode .tab-content,
-    body.dark-mode .calculations_box,
-    body.dark-mode pre,
-    body.dark-mode table,
-    body.dark-mode .dataTables_wrapper {
-      background-color: #0d1117; color: #e6edf3; border-color: #30363d;
-    }
-    body.dark-mode .form-control,
-    body.dark-mode .selectize-input {
-      background-color: #161b22; color: #e6edf3; border-color: #30363d;
-    }
-    body.dark-mode .nav-tabs > li > a {
-      color: #e6edf3;
-    }
-    body.dark-mode .intro-heading { color: #79c0ff; border-bottom-color: #30363d; }
-    body.dark-mode .intro-note { background: #0d1117; border-left-color: #79c0ff; }
-    body.dark-mode .worked-example,
-    body.dark-mode .example-dropdown,
-    body.dark-mode .formula-line,
-    body.dark-mode .intro-table tr:nth-child(odd) td {
-      background: #0d1117; border-color: #30363d;
-    }
-    body.dark-mode .example-dropdown { border-color: #79c0ff; }
-    body.dark-mode .example-dropdown summary { background: #161b22; color: #79c0ff; }
-    body.dark-mode .example-dropdown summary::after { border-top-color: #79c0ff; }
-    body.dark-mode .example-dropdown[open] summary::after { border-bottom-color: #79c0ff; }
-    body.dark-mode .intro-table { border-color: #30363d; }
-    body.dark-mode .intro-table th { background: #1f6feb; }
-    body.dark-mode .intro-table td { border-top-color: #30363d; }
-    body.dark-mode .matrix-grid,
-    body.dark-mode .solution-grid,
-    body.dark-mode .equation-box,
-    body.dark-mode .calculation-step { background: #0d1117; border-color: #30363d; }
-    body.dark-mode .matrix-grid td,
-    body.dark-mode .solution-grid td,
-    body.dark-mode .solution-grid th { border-color: #30363d; }
-    body.dark-mode .solution-grid th { background: #161b22; color: #79c0ff; }
-    body.dark-mode .matrix-operator,
-    body.dark-mode .equation-box strong,
-    body.dark-mode .calculation-step strong,
-    body.dark-mode .equation-arrow { color: #79c0ff; }
-    body.dark-mode .tolerance-highlight {
-      background: #3d2f00; color: #f2cc60; border-color: #8f741f;
-    }
-    body.dark-mode .calculator-jump { background: #1f6feb; border-color: #1f6feb; }
-    body.dark-mode .dominance-part {
-      background: #161b22; border-color: #30363d;
-    }
-    body.dark-mode .dominance-label,
-    body.dark-mode .dominance-symbol { color: #79c0ff; }
-    body.dark-mode .dominance-pass .dominance-value { color: #7ee787; }
-    body.dark-mode .dominance-table .comparison-cell { color: #79c0ff; }
-    body.dark-mode .dominance-table .pass-cell { color: #7ee787; }
-    body.dark-mode .calculator-panel,
-    body.dark-mode .result-card,
-    body.dark-mode .calculator-tabs {
-      background: #0d1117;
-      border-color: #30363d;
-    }
-    body.dark-mode .calculator-hero {
-      border-bottom-color: #30363d;
-    }
-    body.dark-mode .calculator-hero h3 {
-      color: #79c0ff;
-    }
-    body.dark-mode .calculator-hero p,
-    body.dark-mode .calculator-panel .help-block,
-    body.dark-mode .calculator-results-empty,
-    body.dark-mode .chart-note {
-      color: #9aa7b5;
-    }
-    body.dark-mode .calculator-badge {
-      background: #0f2f23;
-      border-color: #255f46;
-      color: #7ee787;
-    }
-    body.dark-mode .calculator-result-card {
-      background: #161b22;
-      color: #e6edf3;
-      border-color: #30363d;
-    }
-    body.dark-mode .calculator-panel h4,
-    body.dark-mode .calculator-section-label,
-    body.dark-mode .calculator-grid th,
-    body.dark-mode .result-card h4,
-    body.dark-mode .calculator-result-card h4 {
-      color: #79c0ff;
-    }
-    body.dark-mode .result-value-grid,
-    body.dark-mode .result-number {
-      background: #0d1117;
-      border-color: #30363d;
-    }
-    body.dark-mode .result-value-grid th {
-      background: #161b22;
-      color: #79c0ff;
-      border-color: #30363d;
-    }
-    body.dark-mode .result-value-grid td {
-      border-color: #30363d;
-    }
-    body.dark-mode .calculator-grid-label {
-      background: #161b22;
-      border-color: #30363d;
-    }
-    body.dark-mode .calculator-grid-cell {
-      background: #0d1117;
-      border-color: #30363d;
-    }
-    body.dark-mode .calculator-input-card .form-group label {
-      color: #c9d1d9;
-    }
-    body.dark-mode .calculator-actions #calculate {
-      background: #23845f;
-      border-color: #23845f;
-    }
-    body.dark-mode .calculator-actions #download_table {
-      background: #161b22;
-      border-color: #30363d;
-      color: #79c0ff;
-    }
-    body.dark-mode .status-ok { color: #7ee787; }
-    body.dark-mode .status-warn { color: #f2cc60; }
-    body.dark-mode .status-bad { color: #ff7b72; }
-    body.dark-mode pre#answer,
-    body.dark-mode pre#error_out {
-      background-color: #161b22;
-      color: #e6edf3;
-      border-color: #30363d;
-    }
+    .tw-calculator-card-title { font-size: 19px; line-height: 1.3; }
+    .tw-story-step-title { font-size: 19px; line-height: 1.35; }
+    .tw-result-card-title { font-size: 14px; line-height: 1.4; letter-spacing: .04em; }
+    .tw-results-heading { font-size: 19px; line-height: 1.3; }
+    .tw-solve-title { font-size: 19px; line-height: 1.35; }
+    .tw-calculator-subtitle { font-size: 14px; line-height: 1.55; }
+    .tw-calculator-help { font-size: 14px; line-height: 1.5; }
+    .tw-story-step-copy { font-size: 14px; line-height: 1.55; }
+    .tw-solve-copy { font-size: 14px; line-height: 1.55; }
+    .tw-calculator-section-label { font-size: 12px; line-height: 1.4; }
   ")),
 
   titlePanel(div("Gauss-Jacobi Iterative Method", class = "title")),
-  div(class = "theme-toggle", checkboxInput("dark_mode", "Dark mode", value = FALSE)),
 
   tabsetPanel(id = "main_tabs",
 
@@ -1710,10 +1589,6 @@ matrix_ui_metrics <- function(n) {
 }
 
 server <- function(input, output, session) {
-  observe({
-      session$sendCustomMessage("darkMode", isTRUE(input$dark_mode))
-    })
-
   observeEvent(input$go_to_calculator, {
     updateTabsetPanel(session, "main_tabs", selected = "Calculate")
     session$sendCustomMessage("scrollToTop", TRUE)
