@@ -109,6 +109,26 @@ ui <- fluidPage(
           window.scrollTo(0, 0);
         }, 100);
       });
+      document.addEventListener('input', function(event) {
+        if (!window.Shiny || !event.target || !event.target.id) return;
+        if (/^(a_\\d+_\\d+|b_\\d+|x0_\\d+|n|tol|max_iter)$/.test(event.target.id)) {
+          Shiny.setInputValue('calculator_inputs_changed', {
+            id: event.target.id,
+            value: event.target.value,
+            timestamp: Date.now()
+          }, {priority: 'event'});
+        }
+      }, true);
+      document.addEventListener('change', function(event) {
+        if (!window.Shiny || !event.target || !event.target.id) return;
+        if (/^(a_\\d+_\\d+|b_\\d+|x0_\\d+|n|tol|max_iter)$/.test(event.target.id)) {
+          Shiny.setInputValue('calculator_inputs_changed', {
+            id: event.target.id,
+            value: event.target.value,
+            timestamp: Date.now()
+          }, {priority: 'event'});
+        }
+      }, true);
     "))
   ),
   tags$style(HTML("
@@ -119,7 +139,7 @@ ui <- fluidPage(
     .title { text-align: center; }
     footer { text-align: center; padding: 20px 0; }
     .btn-default {
-      color: white; background-color: #4a7fb8; border-color: transparent;
+      color: white; background-color: #427AB5; border-color: transparent;
       margin: 0 auto; display: block;
     }
     #download_table { margin-top: 12px; }
@@ -132,16 +152,16 @@ ui <- fluidPage(
     .description { padding: 10px 100px 20px; text-align: left; }
     .intro-section { max-width: 960px; margin: 0 auto 28px; }
     .intro-heading {
-      color: #2c5f93; font-weight: 700; text-align: left;
-      border-bottom: 2px solid #d8e6f3; padding-bottom: 8px; margin-top: 30px;
+      color: #356291; font-weight: 700; text-align: left;
+      border-bottom: 2px solid #D9E8F6; padding-bottom: 8px; margin-top: 30px;
     }
     .intro-lead { font-size: 19px; line-height: 1.55; }
     .intro-note {
-      background: #eef5fb; border-left: 5px solid #4a7fb8;
+      background: #EEF6FC; border-left: 5px solid #427AB5;
       padding: 14px 18px; margin: 16px auto; font-size: 18px; line-height: 1.5;
     }
     .worked-example {
-      background: #fbfcfe; border: 1px solid #d8e6f3;
+      background: #F8FBFE; border: 1px solid #D9E8F6;
       padding: 18px 22px; margin: 18px auto; border-radius: 8px;
     }
     .worked-example h4 { margin-top: 8px; }
@@ -151,13 +171,13 @@ ui <- fluidPage(
       font-size: 17px; line-height: 1.45;
     }
     .example-dropdown {
-      background: #ffffff; border: 2px solid #4a7fb8;
+      background: #ffffff; border: 2px solid #427AB5;
       border-radius: 8px; margin: 18px auto; padding: 0;
-      overflow: hidden; box-shadow: 0 2px 8px rgba(44, 95, 147, 0.12);
+      overflow: hidden; box-shadow: 0 2px 8px rgba(66, 122, 181, 0.12);
     }
     .example-dropdown summary {
       cursor: pointer; padding: 14px 52px 14px 18px; font-size: 18px;
-      font-weight: 700; color: #1f4f7d; background: #eef5fb;
+      font-weight: 700; color: #284F78; background: #EEF6FC;
       list-style: none; position: relative;
     }
     .example-dropdown summary::-webkit-details-marker { display: none; }
@@ -165,10 +185,10 @@ ui <- fluidPage(
       content: ''; position: absolute; right: 20px; top: 50%;
       width: 0; height: 0; margin-top: -3px;
       border-left: 7px solid transparent; border-right: 7px solid transparent;
-      border-top: 9px solid #1f4f7d;
+      border-top: 9px solid #284F78;
     }
     .example-dropdown[open] summary::after {
-      border-top: 0; border-bottom: 9px solid #1f4f7d;
+      border-top: 0; border-bottom: 9px solid #284F78;
     }
     .example-dropdown > div { padding: 16px 20px 20px; }
     .description ul { font-size: 18px; line-height: 1.55; margin: 12px auto 22px; max-width: 900px; }
@@ -176,15 +196,15 @@ ui <- fluidPage(
     .intro-table {
       border-collapse: separate; border-spacing: 0; width: 100%;
       margin: 20px auto; overflow: hidden; border-radius: 8px;
-      border: 1px solid #d8e6f3; font-size: 17px;
+      border: 1px solid #D9E8F6; font-size: 17px;
     }
     .intro-table th {
-      background: #2c5f93; color: white; font-weight: 700;
+      background: #356291; color: white; font-weight: 700;
       padding: 12px 16px; text-align: center;
     }
     .intro-table td {
       padding: 12px 16px; text-align: left; vertical-align: middle;
-      border-top: 1px solid #d8e6f3;
+      border-top: 1px solid #D9E8F6;
     }
     .intro-table tr:nth-child(odd) td { background: #f7f9fc; }
     .intro-table .numeric-cell {
@@ -205,7 +225,7 @@ ui <- fluidPage(
       gap: 14px; margin: 18px auto 8px; flex-wrap: wrap;
     }
     .matrix-operator {
-      font-size: 24px; font-weight: 700; color: #1f4f7d;
+      font-size: 24px; font-weight: 700; color: #284F78;
     }
     .equation-pair { display: grid; gap: 18px; margin: 16px 0; }
     .equation-row {
@@ -214,33 +234,57 @@ ui <- fluidPage(
     }
     .equation-arrow {
       display: flex; align-items: center; justify-content: center;
-      color: #1f4f7d; font-size: 28px; font-weight: 700;
+      color: #284F78; font-size: 28px; font-weight: 700;
     }
     .equation-box {
-      border: 1px solid #d8e6f3; border-radius: 8px; padding: 14px;
-      background: #fbfcfe;
+      border: 1px solid #D9E8F6; border-radius: 8px; padding: 14px;
+      background: #F8FBFE;
     }
     .equation-box strong {
-      display: block; color: #1f4f7d; font-weight: 700; margin-bottom: 8px;
+      display: block; color: #284F78; font-weight: 700; margin-bottom: 8px;
     }
     .calculation-stack {
       display: grid; gap: 14px; margin: 14px 0;
     }
     .calculation-step {
-      border: 1px solid #d8e6f3; border-radius: 8px;
-      background: #fbfcfe; padding: 14px 18px;
+      border: 1px solid #D9E8F6; border-radius: 8px;
+      background: #F8FBFE; padding: 14px 18px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-color: #94a3b8 #e2e8f0;
+      scrollbar-width: thin;
+    }
+    .calculation-step::-webkit-scrollbar {
+      height: 10px;
+    }
+    .calculation-step::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 999px;
+    }
+    .calculation-step::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 999px;
     }
     .calculation-step strong {
-      display: block; color: #1f4f7d; font-weight: 700; margin-bottom: 8px;
+      display: block; color: #284F78; font-weight: 700; margin-bottom: 8px;
+      line-height: 1.4;
+      white-space: normal;
+    }
+    .calculation-step .MathJax_Display,
+    .calculation-step mjx-container[display='true'] {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 4px;
     }
     .solution-grid {
       border-collapse: separate; border-spacing: 0; width: 100%;
-      margin: 14px 0; border: 1px solid #d8e6f3; border-radius: 8px;
+      margin: 14px 0; border: 1px solid #D9E8F6; border-radius: 8px;
       overflow: hidden; font-size: 17px;
     }
     .solution-grid th {
-      background: #eef5fb; color: #1f4f7d; font-weight: 700;
-      padding: 10px 14px; border-bottom: 1px solid #d8e6f3;
+      background: #EEF6FC; color: #284F78; font-weight: 700;
+      padding: 10px 14px; border-bottom: 1px solid #D9E8F6;
     }
     .intro-table tr:first-child > *,
     .solution-grid tr:first-child > *,
@@ -248,7 +292,7 @@ ui <- fluidPage(
       text-align: center;
     }
     .solution-grid td {
-      padding: 10px 14px; text-align: center; border-top: 1px solid #d8e6f3;
+      padding: 10px 14px; text-align: center; border-top: 1px solid #D9E8F6;
     }
     .tolerance-highlight {
       display: inline-block; background: #fff4cc; color: #4f3900;
@@ -257,42 +301,42 @@ ui <- fluidPage(
     }
     .calculator-jump {
       display: inline-block; margin-top: 10px; font-weight: 700;
-      color: white; background: #2c5f93; border-color: #2c5f93;
+      color: white; background: #356291; border-color: #356291;
     }
     .convergence-check {
       display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px; margin: 14px 0;
     }
     .convergence-check .calculation-step {
-      border-left: 5px solid #4a7fb8;
+      border-left: 5px solid #427AB5;
     }
     .dominance-grid {
       display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
       gap: 8px; align-items: center; margin-top: 10px;
     }
     .dominance-part {
-      background: #eef5fb; border: 1px solid #d8e6f3; border-radius: 6px;
+      background: #EEF6FC; border: 1px solid #D9E8F6; border-radius: 6px;
       padding: 8px 10px; text-align: center;
     }
     .dominance-label {
-      display: block; color: #1f4f7d; font-size: 13px; font-weight: 700;
+      display: block; color: #284F78; font-size: 13px; font-weight: 700;
       margin-bottom: 4px;
     }
     .dominance-value { display: block; font-size: 18px; font-weight: 700; }
-    .dominance-symbol { color: #1f4f7d; font-size: 22px; font-weight: 700; }
-    .dominance-pass .dominance-value { color: #1d7a3a; }
+    .dominance-symbol { color: #284F78; font-size: 22px; font-weight: 700; }
+    .dominance-pass .dominance-value { color: #356291; }
     .dominance-table td,
     .dominance-table th {
       text-align: center;
       vertical-align: middle;
     }
     .dominance-table .comparison-cell {
-      color: #1f4f7d;
+      color: #284F78;
       font-size: 22px;
       font-weight: 700;
     }
     .dominance-table .pass-cell {
-      color: #1d7a3a;
+      color: #356291;
       font-weight: 700;
     }
     .calculator-page {
@@ -305,12 +349,12 @@ ui <- fluidPage(
       justify-content: space-between;
       gap: 18px;
       padding: 18px 0 8px;
-      border-bottom: 1px solid #d8e6f3;
+      border-bottom: 1px solid #D9E8F6;
       margin-bottom: 18px;
     }
     .calculator-hero h3 {
       margin: 0 0 6px;
-      color: #1f4f7d;
+      color: #284F78;
       font-size: 28px;
       font-weight: 700;
     }
@@ -322,9 +366,9 @@ ui <- fluidPage(
       max-width: 720px;
     }
     .calculator-badge {
-      background: #edf7f1;
-      border: 1px solid #bfe1cc;
-      color: #1d6b38;
+      background: #EEF6FC;
+      border: 1px solid #D9E8F6;
+      color: #284F78;
       border-radius: 6px;
       padding: 8px 12px;
       font-size: 14px;
@@ -340,7 +384,7 @@ ui <- fluidPage(
       margin-bottom: 18px;
     }
     .calculator-panel h4 {
-      color: #1f4f7d;
+      color: #284F78;
       font-size: 20px;
       font-weight: 700;
       margin-top: 0;
@@ -379,11 +423,11 @@ ui <- fluidPage(
       min-height: 46px;
     }
     .tw-calculator-input-card .form-control:focus {
-      border-color: #2c5f93;
-      box-shadow: 0 0 0 3px rgba(44, 95, 147, 0.14);
+      border-color: #356291;
+      box-shadow: 0 0 0 3px rgba(66, 122, 181, 0.14);
     }
     .calculator-section-label {
-      color: #1f4f7d;
+      color: #284F78;
       font-size: 18px;
       font-weight: 700;
       margin: 18px 0 8px;
@@ -407,12 +451,12 @@ ui <- fluidPage(
       min-width: 0;
     }
     .calculator-grid-label {
-      background: #eef5fb;
-      color: #1f4f7d;
+      background: #EEF6FC;
+      color: #284F78;
       font-size: 18px;
       font-weight: 700;
       text-align: center;
-      border: 1px solid #d8e6f3;
+      border: 1px solid #D9E8F6;
       border-radius: 6px;
       padding: 9px 10px;
       display: flex;
@@ -421,7 +465,7 @@ ui <- fluidPage(
       min-height: 44px;
     }
     .calculator-grid-cell {
-      border: 1px solid #d8e6f3;
+      border: 1px solid #D9E8F6;
       border-radius: 6px;
       padding: 7px;
       text-align: center;
@@ -448,7 +492,7 @@ ui <- fluidPage(
       box-shadow: none;
     }
     .calculator-grid input.form-control:focus {
-      border-color: #4a7fb8;
+      border-color: #427AB5;
       box-shadow: 0 0 0 2px rgba(74, 127, 184, 0.16);
     }
     .tw-calculator-grid input.form-control {
@@ -464,7 +508,7 @@ ui <- fluidPage(
       min-height: 40px;
     }
     .tw-calculator-grid input.form-control:focus {
-      border-color: #4a7fb8;
+      border-color: #427AB5;
       box-shadow: 0 0 0 2px rgba(74, 127, 184, 0.16);
     }
     .tw-matrix-table-wrap {
@@ -523,7 +567,7 @@ ui <- fluidPage(
     }
     .tw-matrix-table input.form-control:focus {
       background: #ffffff;
-      box-shadow: inset 0 0 0 3px rgba(44, 95, 147, 0.22);
+      box-shadow: inset 0 0 0 3px rgba(66, 122, 181, 0.22);
       outline: none;
     }
     .tw-vector-row {
@@ -559,8 +603,8 @@ ui <- fluidPage(
       text-align: center;
     }
     .tw-vector-cell input.form-control:focus {
-      border-color: #2c5f93;
-      box-shadow: 0 0 0 3px rgba(44, 95, 147, 0.14);
+      border-color: #356291;
+      box-shadow: 0 0 0 3px rgba(66, 122, 181, 0.14);
     }
     .tw-vector-table-wrap {
       width: max-content;
@@ -572,12 +616,14 @@ ui <- fluidPage(
     }
     .tw-vector-table {
       border-collapse: collapse;
+      table-layout: fixed;
       width: max-content;
       background: #f8fafc;
     }
     .tw-vector-table th,
     .tw-vector-table td {
       border: 2px solid #cbd5e1;
+      box-sizing: border-box;
       padding: 0;
       text-align: center;
       vertical-align: middle;
@@ -599,6 +645,7 @@ ui <- fluidPage(
       background: #f8fafc;
       border: 0;
       border-radius: 0;
+      box-sizing: border-box;
       box-shadow: none;
       color: #1f2937;
       font-size: var(--cell-font-size, 24px);
@@ -610,9 +657,57 @@ ui <- fluidPage(
       text-align: center;
       width: 100%;
     }
+    .tw-vector-table .tw-vector-cell-input {
+      background: #f8fafc;
+      border: 0;
+      border-radius: 0;
+      box-sizing: border-box;
+      box-shadow: none;
+      color: #1f2937;
+      display: block;
+      font-size: var(--cell-font-size, 24px);
+      font-weight: 700;
+      height: 100%;
+      line-height: 1.2;
+      margin: 0;
+      min-height: var(--cell-size, 60px);
+      padding: 0;
+      text-align: center;
+      width: 100%;
+    }
+    .tw-vector-table .tw-vector-cell-input:focus {
+      background: #ffffff;
+      box-shadow: inset 0 0 0 3px rgba(66, 122, 181, 0.22);
+      outline: none;
+    }
+    .tw-vector-table .tw-vector-cell-input[type='number'] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .tw-vector-table .tw-vector-cell-input[type='number']::-webkit-inner-spin-button,
+    .tw-vector-table .tw-vector-cell-input[type='number']::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .tw-vector-table .tw-vector-cell-label-box {
+      align-items: center;
+      background: #eef2f7;
+      box-sizing: border-box;
+      color: #64748b;
+      display: flex;
+      font-size: var(--cell-font-size, 24px);
+      font-weight: 700;
+      height: 100%;
+      justify-content: center;
+      line-height: 1.2;
+      min-height: var(--cell-size, 60px);
+      padding: 0;
+      text-align: center;
+      width: 100%;
+    }
     .tw-vector-table input.form-control:focus {
       background: #ffffff;
-      box-shadow: inset 0 0 0 3px rgba(44, 95, 147, 0.22);
+      box-shadow: inset 0 0 0 3px rgba(66, 122, 181, 0.22);
       outline: none;
     }
     .tw-vector-table-vertical th {
@@ -630,15 +725,12 @@ ui <- fluidPage(
       background: #f8fafc;
     }
     .tw-unknown-vector td {
-      border: 2px solid #cbd5e1;
-      color: #334155;
+      box-sizing: border-box;
+      color: #64748b;
       font-size: var(--cell-font-size, 24px);
       font-weight: 700;
-      height: 64px;
-      min-width: 60px;
-      padding: 0 12px;
-      text-align: center;
-      vertical-align: middle;
+      line-height: 1.2;
+      padding: 0;
     }
     .grid-pair {
       display: grid;
@@ -693,19 +785,55 @@ ui <- fluidPage(
     }
     .tw-equation-part,
     .tw-equation-vector-part {
+      align-items: center;
+      display: flex;
       flex: 0 0 auto;
+      flex-direction: column;
+      padding-top: 44px;
+      position: relative;
+      width: max-content;
     }
     .tw-equation-sign {
-      align-self: center;
+      align-items: center;
+      align-self: stretch;
       color: #475569;
+      display: flex;
       flex: 0 0 auto;
       font-size: 24px;
       font-weight: 700;
-      padding: 0 4px 34px;
+      justify-content: center;
+      padding-top: 44px;
+    }
+    .tw-equation-sign-spacer {
+      display: none;
+    }
+    .tw-equation-sign-symbol {
+      align-items: center;
+      display: flex;
+      flex: 1 1 auto;
+      justify-content: center;
+      padding: 0 4px;
     }
     .tw-equation-spacer-label {
+      display: none;
+    }
+    .tw-calculator-section-label {
+      align-items: center;
+      color: #284F78;
+      display: flex;
       height: 20px;
-      margin: 16px 0 8px;
+      justify-content: center;
+      left: 50%;
+      margin: 0;
+      position: absolute;
+      text-align: center;
+      top: 16px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      width: max-content;
+    }
+    .tw-equation-sign-spacer {
+      display: none;
     }
     .calculator-actions {
       display: flex;
@@ -719,15 +847,15 @@ ui <- fluidPage(
       display: inline-block;
     }
     .calculator-actions #calculate {
-      background: #1f6f54;
-      border-color: #1f6f54;
+      background: #427AB5;
+      border-color: #427AB5;
       color: #fff;
       font-weight: 700;
       min-width: 132px;
     }
     .tw-calculator-actions #calculate {
-      background: #1f6f54;
-      border-color: #1f6f54;
+      background: #427AB5;
+      border-color: #427AB5;
       color: #fff;
       font-size: 18px;
       font-weight: 700;
@@ -737,17 +865,23 @@ ui <- fluidPage(
       border-radius: 10px;
       padding: 9px 18px;
     }
+    .tw-calculator-actions #calculate:hover,
+    .tw-calculator-actions #calculate:focus {
+      background: #356291;
+      border-color: #356291;
+      color: #ffffff;
+    }
     .calculator-actions #download_table {
       background: #ffffff;
       border-color: #b9cbe0;
-      color: #1f4f7d;
+      color: #284F78;
       font-weight: 700;
       margin-top: 0;
     }
     .tw-calculator-actions #download_table {
       background: #ffffff;
       border-color: #b9cbe0;
-      color: #1f4f7d;
+      color: #284F78;
       font-size: 18px;
       font-weight: 700;
       min-height: 44px;
@@ -775,14 +909,14 @@ ui <- fluidPage(
       margin-top: 18px;
     }
     .result-card {
-      background: #fbfcfe;
-      border: 1px solid #d8e6f3;
+      background: #F8FBFE;
+      border: 1px solid #D9E8F6;
       border-radius: 8px;
       padding: 14px;
       min-height: 130px;
     }
     .result-card h4 {
-      color: #1f4f7d;
+      color: #284F78;
       font-weight: 700;
       margin-top: 0;
       font-size: 20px;
@@ -790,7 +924,7 @@ ui <- fluidPage(
     .calculator-result-card {
       background: #ffffff;
       color: #222;
-      border: 1px solid #d8e6f3;
+      border: 1px solid #D9E8F6;
       border-radius: 8px;
       padding: 14px;
       margin: 0 0 16px;
@@ -800,7 +934,7 @@ ui <- fluidPage(
       align-items: start;
     }
     .calculator-result-card h4 {
-      color: #1f4f7d;
+      color: #284F78;
       font-weight: 700;
       margin: 0 0 8px;
       font-size: 20px;
@@ -827,9 +961,27 @@ ui <- fluidPage(
     }
     .chart-note {
       color: #475569;
+      font-size: 16px;
       line-height: 1.55;
       margin: 16px 8px 0;
       max-width: 900px;
+    }
+    .tw-chart-note {
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    .shiny-notification {
+      border: 1px solid #D9E8F6;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(66, 122, 181, 0.16);
+      font-size: 16px;
+      line-height: 1.45;
+      padding: 14px 16px;
+      right: 22px;
+    }
+    .shiny-notification-warning {
+      background: #EEF6FC;
+      color: #284F78;
     }
     .result-value-grid {
       border-collapse: separate;
@@ -896,6 +1048,23 @@ ui <- fluidPage(
       background: #94a3b8;
       border-radius: 999px;
     }
+    .stale-result-notice {
+      background: #EEF6FC;
+      border: 1px solid #D9E8F6;
+      border-radius: 12px;
+      color: #284F78;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.45;
+      padding: 14px 16px;
+    }
+    .stale-result-note {
+      color: #566575;
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 4px;
+    }
     .tw-result-card .calculator-results-empty {
       color: #64748b;
       font-size: 14px;
@@ -923,7 +1092,7 @@ ui <- fluidPage(
     .tw-calculator-tabs .nav-tabs > li.active > a,
     .tw-calculator-tabs .nav-tabs > li.active > a:focus,
     .tw-calculator-tabs .nav-tabs > li.active > a:hover {
-      background: #2c5f93;
+      background: #356291;
       border: 0;
       color: #ffffff;
     }
@@ -959,7 +1128,7 @@ ui <- fluidPage(
     }
     .calculations_box:before {
       position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;
-      background-color: #4a7fb8; color: white; border-radius: 9px 9px 0 0;
+      background-color: #427AB5; color: white; border-radius: 9px 9px 0 0;
       font-size: 18px; padding: 8px;
       counter-increment: section; content: 'Step ' counter(section);
     }
@@ -971,10 +1140,26 @@ ui <- fluidPage(
     .nav-tabs > li.active > a,
     .nav-tabs > li.active > a:focus,
     .nav-tabs > li.active > a:hover {
-      color: white; cursor: default; background-color: #4a7fb8;
+      color: white; cursor: default; background-color: #427AB5;
       border: 1px solid #ddd; border-bottom-color: transparent;
     }
-    .status-ok { color: #1d7a3a; font-weight: bold; }
+    .nav-tabs > li > a {
+      color: #356291;
+    }
+    .nav-tabs > li > a:hover,
+    .nav-tabs > li > a:focus {
+      color: #284F78;
+      background-color: #EEF6FC;
+      border-color: #D9E8F6;
+    }
+    .tw-calculator-tabs .nav-tabs > li.active > a,
+    .tw-calculator-tabs .nav-tabs > li.active > a:focus,
+    .tw-calculator-tabs .nav-tabs > li.active > a:hover {
+      background: #427AB5;
+      border-color: #427AB5;
+      color: #ffffff;
+    }
+    .status-ok { color: #356291; font-weight: bold; }
     .status-warn { color: #b8860b; font-weight: bold; }
     .status-bad { color: #b22222; font-weight: bold; }
     .tw-calculator-card-title { font-size: 19px; line-height: 1.3; }
@@ -1274,19 +1459,19 @@ ui <- fluidPage(
                 h4("Step 1: Use the previous iterate in each iteration formula."),
                 withMathJax(HTML("<div class='calculation-stack'>
                     <div class='calculation-step'>
-                      <strong>Compute \\(x_1\\) for iteration 1</strong>
+                      <strong>Compute x<sub>1</sub> for iteration 1</strong>
                       \\[x_1^{(1)} = \\dfrac{6 + 0 - 2(0)}{10}\\]
                       \\[x_1^{(1)} = \\dfrac{6}{10}\\]
                       \\[x_1^{(1)} = 0.6000\\]
                     </div>
                     <div class='calculation-step'>
-                      <strong>Compute \\(x_2\\) for iteration 1</strong>
+                      <strong>Compute x<sub>2</sub> for iteration 1</strong>
                       \\[x_2^{(1)} = \\dfrac{25 + 0 + 0}{11}\\]
                       \\[x_2^{(1)} = \\dfrac{25}{11}\\]
                       \\[x_2^{(1)} = 2.2727\\]
                     </div>
                     <div class='calculation-step'>
-                      <strong>Compute \\(x_3\\) for iteration 1</strong>
+                      <strong>Compute x<sub>3</sub> for iteration 1</strong>
                       \\[x_3^{(1)} = \\dfrac{-11 - 2(0) + 0}{10}\\]
                       \\[x_3^{(1)} = \\dfrac{-11}{10}\\]
                       \\[x_3^{(1)} = -1.1000\\]
@@ -1315,21 +1500,21 @@ ui <- fluidPage(
                 h4("Step 4: Use iteration 1 as the previous iterate to compute iteration 2."),
                 withMathJax(HTML("<div class='calculation-stack'>
                     <div class='calculation-step'>
-                      <strong>Compute \\(x_1\\) for iteration 2</strong>
+                      <strong>Compute x<sub>1</sub> for iteration 2</strong>
                       \\[x_1^{(2)} = \\dfrac{6 + x_2^{(1)} - 2x_3^{(1)}}{10}\\]
                       \\[x_1^{(2)} = \\dfrac{6 + 2.2727 - 2(-1.1000)}{10}\\]
                       \\[x_1^{(2)} = \\dfrac{10.4727}{10}\\]
                       \\[x_1^{(2)} = 1.0473\\]
                     </div>
                     <div class='calculation-step'>
-                      <strong>Compute \\(x_2\\) for iteration 2</strong>
+                      <strong>Compute x<sub>2</sub> for iteration 2</strong>
                       \\[x_2^{(2)} = \\dfrac{25 + x_1^{(1)} + x_3^{(1)}}{11}\\]
                       \\[x_2^{(2)} = \\dfrac{25 + 0.6000 + (-1.1000)}{11}\\]
                       \\[x_2^{(2)} = \\dfrac{24.5000}{11}\\]
                       \\[x_2^{(2)} = 2.2273\\]
                     </div>
                     <div class='calculation-step'>
-                      <strong>Compute \\(x_3\\) for iteration 2</strong>
+                      <strong>Compute x<sub>3</sub> for iteration 2</strong>
                       \\[x_3^{(2)} = \\dfrac{-11 - 2x_1^{(1)} + x_2^{(1)}}{10}\\]
                       \\[x_3^{(2)} = \\dfrac{-11 - 2(0.6000) + 2.2727}{10}\\]
                       \\[x_3^{(2)} = \\dfrac{-9.9273}{10}\\]
@@ -1476,7 +1661,10 @@ ui <- fluidPage(
                     div(class = "tw-equation-spacer-label"),
                     uiOutput("unknown_vector")
                   ),
-                  div(class = "tw-equation-sign", "="),
+                  div(class = "tw-equation-sign",
+                    div(class = "tw-equation-sign-spacer"),
+                    div(class = "tw-equation-sign-symbol", "=")
+                  ),
                   div(class = "tw-equation-part",
                     div(class = "tw-calculator-section-label", "Right-hand side vector b"),
                     uiOutput("b_grid_input")
@@ -1582,10 +1770,10 @@ default_x0_value <- function(i, n) {
 }
 
 matrix_ui_metrics <- function(n) {
-  if (n <= 3) return(list(cell = 64, vector = 76, unknown = 64, font = 24))
-  if (n <= 5) return(list(cell = 56, vector = 68, unknown = 56, font = 22))
-  if (n <= 7) return(list(cell = 50, vector = 62, unknown = 50, font = 20))
-  list(cell = 48, vector = 60, unknown = 48, font = 18)
+  if (n <= 3) return(list(cell = 64, vector = 76, unknown = 76, font = 24))
+  if (n <= 5) return(list(cell = 56, vector = 68, unknown = 68, font = 22))
+  if (n <= 7) return(list(cell = 50, vector = 62, unknown = 62, font = 20))
+  list(cell = 48, vector = 60, unknown = 60, font = 18)
 }
 
 server <- function(input, output, session) {
@@ -1630,13 +1818,21 @@ server <- function(input, output, session) {
       if (is.null(value)) value <- default_b_value(i, n)
       tags$tr(
         tags$td(style = cell_style,
-          numericInput(id, label = NULL, value = value, step = 1, width = "100%")
+          tags$input(
+            id = id,
+            class = "tw-vector-cell-input",
+            type = "number",
+            value = value,
+            step = 1
+          )
         )
       )
     })
 
+    table_width <- metrics$vector
+
     div(class = "tw-vector-table-wrap", style = paste0("--cell-font-size:", metrics$font, "px; --cell-size:", metrics$cell, "px;"),
-      tags$table(class = "tw-vector-table tw-vector-table-vertical",
+      tags$table(class = "tw-vector-table tw-vector-table-vertical", style = paste0("width:", table_width, "px;"),
         do.call(tags$tbody, rows)
       )
     )
@@ -1645,13 +1841,23 @@ server <- function(input, output, session) {
   output$unknown_vector <- renderUI({
     n <- as.integer(input$n)
     metrics <- matrix_ui_metrics(n)
-    cell_style <- paste0("height:", metrics$cell, "px; min-width:", metrics$unknown, "px;")
+    cell_style <- paste0(
+      "height:", metrics$cell, "px;",
+      "width:", metrics$vector, "px;",
+      "min-width:", metrics$vector, "px;"
+    )
     rows <- lapply(seq_len(n), function(i) {
-      tags$tr(tags$td(style = cell_style, HTML(paste0("x<sub>", i, "</sub>"))))
+      tags$tr(
+        tags$td(style = cell_style,
+          tags$div(class = "tw-vector-cell-label-box", HTML(paste0("x<sub>", i, "</sub>")))
+        )
+      )
     })
 
+    table_width <- metrics$vector
+
     div(class = "tw-vector-table-wrap", style = paste0("--cell-font-size:", metrics$font, "px; --cell-size:", metrics$cell, "px;"),
-      tags$table(class = "tw-unknown-vector",
+      tags$table(class = "tw-vector-table tw-vector-table-vertical tw-unknown-vector", style = paste0("width:", table_width, "px;"),
         do.call(tags$tbody, rows)
       )
     )
@@ -1711,10 +1917,58 @@ server <- function(input, output, session) {
     }))
   }
 
-  # Validate inputs and run Gauss-Jacobi. Returns a list or stops with a clear message.
-  result <- reactive({
-    req(input$calculate > 0)
+  current_input_signature <- reactive({
+    n <- as.integer(input$n)
+    if (is.null(n) || is.na(n) || n < 2) return(NULL)
 
+    values <- c(input$n, input$tol, input$max_iter)
+    values <- c(values, unlist(lapply(seq_len(n), function(i) {
+      unlist(lapply(seq_len(n), function(j) input[[paste0("a_", i, "_", j)]]))
+    }), use.names = FALSE))
+    values <- c(values, unlist(lapply(seq_len(n), function(i) input[[paste0("b_", i)]]), use.names = FALSE))
+    values <- c(values, unlist(lapply(seq_len(n), function(i) input[[paste0("x0_", i)]]), use.names = FALSE))
+
+    paste(ifelse(is.null(values), "", values), collapse = "|")
+  })
+
+  result_store <- reactiveVal(NULL)
+  result_signature <- reactiveVal(NULL)
+  result_is_stale <- reactiveVal(FALSE)
+
+  mark_result_stale_if_needed <- function() {
+    req(!is.null(result_store()))
+    sig <- isolate(current_input_signature())
+    saved_sig <- isolate(result_signature())
+    if (!is.null(saved_sig) && !identical(sig, saved_sig)) {
+      result_is_stale(TRUE)
+    }
+  }
+
+  observeEvent(input$calculator_inputs_changed, {
+    req(!is.null(result_store()))
+    result_is_stale(TRUE)
+  }, ignoreInit = TRUE)
+
+  observeEvent(list(input$n, input$tol, input$max_iter), {
+    mark_result_stale_if_needed()
+  }, ignoreInit = TRUE)
+
+  stale_result_notice <- function() {
+    div(class = "stale-result-notice",
+      "Variables updated.",
+      span(class = "stale-result-note", "Click Calculate again to refresh the results.")
+    )
+  }
+
+  require_fresh_result <- function() {
+    validate(
+      need(!is.null(result_store()), "Run the calculator to show this output."),
+      need(!isTRUE(result_is_stale()), "Variables updated. Click Calculate again to refresh the results.")
+    )
+  }
+
+  # Validate inputs and run Gauss-Jacobi only when the Calculate button is clicked.
+  observeEvent(input$calculate, {
     validate(
       need(!is.null(input$n) && input$n >= 2, "n must be at least 2."),
       need(input$tol > 0, "Tolerance must be positive."),
@@ -1734,13 +1988,25 @@ server <- function(input, output, session) {
     res$dom <- is_diagonally_dominant(A)
     res$A   <- A
     res$b   <- b
-    res
+    res$tol <- input$tol
+
+    result_store(res)
+    result_signature(current_input_signature())
+    result_is_stale(FALSE)
+  })
+
+  result <- reactive({
+    req(result_store())
+    result_store()
   })
 
   # Final solution vector
   output$answer <- renderUI({
-    if (input$calculate < 1) {
+    if (is.null(result_store())) {
       return(div(class = "calculator-results-empty", "Run the calculator to show the solution vector."))
+    }
+    if (isTRUE(result_is_stale())) {
+      return(stale_result_notice())
     }
     res <- result()
     labels <- paste0("x<sub>", seq_along(res$solution), "</sub>")
@@ -1757,8 +2023,11 @@ server <- function(input, output, session) {
 
   # Final error
   output$error_out <- renderUI({
-    if (input$calculate < 1) {
+    if (is.null(result_store())) {
       return(div(class = "calculator-results-empty", "Waiting for a calculation."))
+    }
+    if (isTRUE(result_is_stale())) {
+      return(stale_result_notice())
     }
     res <- result()
     HTML(paste0("<span class='result-number'>", formatC(res$final_err, format = "e", digits = 6), "</span>"))
@@ -1766,8 +2035,11 @@ server <- function(input, output, session) {
 
   # Convergence status banner
   output$status <- renderUI({
-    if (input$calculate < 1) {
+    if (is.null(result_store())) {
       return(div(class = "calculator-results-empty", "Convergence details will appear here."))
+    }
+    if (isTRUE(result_is_stale())) {
+      return(stale_result_notice())
     }
     res <- result()
     parts <- list()
@@ -1794,18 +2066,19 @@ server <- function(input, output, session) {
 
   # Convergence plot (error vs. iteration on log scale)
   output$plot <- renderPlot({
+    require_fresh_result()
     res <- result()
     df <- res$history[-1, , drop = FALSE]   # drop iteration 0 (NA error)
 
     ggplot(df, aes(x = Iteration, y = Error)) +
-      geom_line(color = "#4a7fb8", size = 1.1) +
+      geom_line(color = "#427AB5", size = 1.1) +
       geom_point(color = "#b22222", size = 2.5) +
       scale_y_log10() +
-      geom_hline(yintercept = input$tol, linetype = "dashed", color = "#1d7a3a") +
+      geom_hline(yintercept = res$tol, linetype = "dashed", color = "#356291") +
       annotate("text",
-               x = max(df$Iteration), y = input$tol,
-               label = sprintf("tolerance = %.0e", input$tol),
-               vjust = -0.5, hjust = 1, color = "#1d7a3a") +
+               x = max(df$Iteration), y = res$tol,
+               label = sprintf("tolerance = %.0e", res$tol),
+               vjust = -0.5, hjust = 1, color = "#356291") +
       labs(title = "Convergence of Gauss-Jacobi Iteration",
            x = "Iteration",
            y = "Max |x_new - x_old|  (log scale)") +
@@ -1814,6 +2087,7 @@ server <- function(input, output, session) {
 
   # Solution plot (x values vs. iteration)
     output$solution_plot <- renderPlot({
+      require_fresh_result()
       res <- result()
       x_cols <- grep("^x", colnames(res$history), value = TRUE)
 
@@ -1834,6 +2108,7 @@ server <- function(input, output, session) {
 
   # Iteration table
   output$table <- renderDataTable({
+    require_fresh_result()
     res <- result()
     datatable(res$history,
               options = list(pageLength = 10, searching = FALSE, lengthChange = FALSE),
@@ -1855,6 +2130,12 @@ server <- function(input, output, session) {
 
   # Step-by-step calculations
   output$formatted_calculations <- renderUI({
+    if (is.null(result_store())) {
+      return(div(class = "calculator-results-empty", "Run the calculator to show the calculation steps."))
+    }
+    if (isTRUE(result_is_stale())) {
+      return(stale_result_notice())
+    }
     res <- result()
     boxes <- lapply(res$steps, function(txt) {
       div(class = "calculations_box", tags$pre(txt))

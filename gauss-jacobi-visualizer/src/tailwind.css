@@ -79,23 +79,31 @@
   }
 
   .tw-equation-sign {
-    @apply tw-shrink-0 tw-self-center tw-px-1 tw-pb-8 tw-text-2xl tw-font-bold tw-text-slate-500;
+    @apply tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-self-stretch tw-pt-11 tw-text-2xl tw-font-bold tw-text-slate-500;
+  }
+
+  .tw-equation-sign-spacer {
+    @apply tw-hidden;
+  }
+
+  .tw-equation-sign-symbol {
+    @apply tw-flex tw-flex-1 tw-items-center tw-justify-center tw-px-1;
   }
 
   .tw-equation-part {
-    @apply tw-shrink-0;
+    @apply tw-relative tw-flex tw-w-max tw-shrink-0 tw-flex-col tw-items-center tw-pt-11;
   }
 
   .tw-equation-vector-part {
-    @apply tw-shrink-0;
+    @apply tw-relative tw-flex tw-w-max tw-shrink-0 tw-flex-col tw-items-center tw-pt-11;
   }
 
   .tw-equation-spacer-label {
-    @apply tw-mb-2 tw-mt-6 tw-h-5;
+    @apply tw-hidden;
   }
 
   .tw-calculator-section-label {
-    @apply tw-mb-2 tw-mt-4 tw-flex tw-items-center tw-gap-2 tw-text-xs tw-font-bold tw-uppercase tw-tracking-wide tw-text-slate-700;
+    @apply tw-absolute tw-left-1/2 tw-top-4 tw-m-0 tw-flex tw-h-5 -tw-translate-x-1/2 tw-items-center tw-justify-center tw-gap-2 tw-whitespace-nowrap tw-text-center tw-text-xs tw-font-bold tw-uppercase tw-tracking-wide tw-text-brand-600;
   }
 
   .tw-calculator-grid-wrap {
@@ -119,12 +127,12 @@
   }
 
   .tw-vector-table {
-    @apply tw-w-max tw-border-collapse tw-bg-slate-50;
+    @apply tw-w-max tw-table-fixed tw-border-collapse tw-bg-slate-50;
   }
 
   .tw-vector-table th,
   .tw-vector-table td {
-    @apply tw-border-2 tw-border-slate-300 tw-p-0 tw-text-center tw-align-middle;
+    @apply tw-box-border tw-border-2 tw-border-slate-300 tw-p-0 tw-text-center tw-align-middle;
   }
 
   .tw-vector-table th {
@@ -144,7 +152,7 @@
   }
 
   .tw-unknown-vector td {
-    @apply tw-h-[64px] tw-min-w-[60px] tw-border-2 tw-border-slate-300 tw-px-3 tw-text-center tw-align-middle tw-text-2xl tw-font-bold tw-text-slate-700;
+    @apply tw-box-border tw-h-[64px] tw-min-w-[60px] tw-border-2 tw-border-slate-300 tw-bg-slate-100 tw-p-0 tw-text-center tw-align-middle tw-text-2xl tw-font-bold tw-text-slate-500;
   }
 
   .tw-calculator-actions {
@@ -184,6 +192,6 @@
   }
 
   .tw-chart-note {
-    @apply tw-mt-4 tw-max-w-4xl tw-rounded-xl tw-bg-slate-50 tw-p-4 tw-text-sm tw-leading-6 tw-text-slate-600;
+    @apply tw-mt-4 tw-max-w-4xl tw-rounded-xl tw-bg-slate-50 tw-p-4 tw-text-base tw-leading-7 tw-text-slate-600;
   }
 }
